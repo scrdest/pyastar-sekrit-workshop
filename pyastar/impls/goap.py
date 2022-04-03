@@ -18,16 +18,22 @@ piece of work (evaluating one node), the full search can be chunked up arbitrari
 This is a variant of the 'trampolined' module. Most of the references to custom data structures
 and stateful nonsense had been quarantined behind callbacks to make things more generic.
 """
-
-
+import copy
 import heapq
-from pyastar.maputils import Map2D
-from pyastar.measures import manhattan_distance, minkowski_distance, obstacle_dist
+
+from pyastar.measures import action_graph_dist
 
 
 class EmptyQueueError(Exception):
     pass
 
+
+class NoPathError(Exception):
+    pass
+
+
+PLUS_INF = float("inf")
+BLACKBOARD_CLASS = dict
 
 
 def evaluate_neighbor(
@@ -38,26 +44,33 @@ def evaluate_neighbor(
     blackboard=None,
     measure=None,
     neighbor_measure=None,
-    goal_measure=None
+    goal_measure=None,
+    get_effects=None,
 ):
-    _neighbor_measure = neighbor_measure or measure or manhattan_distance
-    _goal_measure = goal_measure or measure or manhattan_distance
-    _blackboard = blackboard or {}
+    _neighbor_measure = neighbor_measure or measure or action_graph_dist
+    _goal_measure = goal_measure or measure or action_graph_dist
+    _blackboard = blackboard or BLACKBOARD_CLASS()
 
-    possible = check_preconds(neigh, _blackboard)
+    valid = check_preconds(neigh, _blackboard)
 
-    if not possible:
-        return float("inf")
+    effects = copy.deepcopy(_blackboard or BLACKBOARD_CLASS())
+    effects.setdefault("src", []).append(current_pos)
+    if get_effects:
+        new_effects = get_effects(neigh)
+        for state_key, state_val in new_effects.items():
+            effects[state_key] = effects.get(state_key, 0) + state_val
 
-    else:
-        neigh_distance = _neighbor_measure(
-            start=current_pos,
-            end=neigh
-        )
+    if not valid:
+        return PLUS_INF, effects
+
+    neigh_distance = _neighbor_measure(
+        current_pos,
+        neigh
+    )
 
     goal_distance = _goal_measure(
-        start=neigh,
-        end=goal
+        neigh,
+        goal
     )
 
     heuristic = sum((
@@ -65,106 +78,132 @@ def evaluate_neighbor(
         goal_distance
     ))
 
-    # print(f"{current_pos}->{neigh} with cost {heuristic} ({neigh_distance}+{goal_distance})")
+    return heuristic, effects
 
-    return heuristic
+
+def equality_check(pos, goal):
+    return pos == goal
 
 
 def _astar_deepening_search(
     start_pos,
     goal,
     adjacency_gen,
-    passability_checker,
+    preconditions_checker,
     parent_callback=None,
-    root=None,
     curr_cost=0,
     visited=None,
     paths=None,
     neighbor_measure=None,
     goal_measure=None,
     queue=False,
+    goal_checker=None,
+    get_effects=None,
     blackboard=None,
+    _iter=1
 ):
 
-    _root = root or start_pos
     _paths = paths or dict()
     _pqueue = queue or []
-    _blackboard = blackboard or {}
+    _blackboard = blackboard or BLACKBOARD_CLASS()
+    _goal_check = goal_checker or equality_check
 
-    if start_pos == goal:
-        cost, parent, stored_blackboard = _paths.get(goal) or (curr_cost, start_pos)
+    if _goal_check(_blackboard, goal):
+        cost, parent, _, _ = _paths.get(goal) or (curr_cost, start_pos, None, None)
 
         if parent and parent_callback:
             parent_callback(parent)
 
         return False, (cost, parent)
 
-    _neighbor_measure = neighbor_measure or minkowski_distance(2)
-    _goal_measure = goal_measure or minkowski_distance(2)
-    _visited = visited or set()
-    _visited.add(start_pos)
+    _neighbor_measure = neighbor_measure or action_graph_dist
+    _goal_measure = goal_measure or action_graph_dist
+    _visited = visited or dict()
+
+    if start_pos not in _visited:
+        _visited[start_pos] = _visited.get(start_pos, 0) + 1
+
     neighbors = adjacency_gen(start_pos)
 
     for neigh in neighbors:
-        if neigh in _visited:
+        if _visited.get(neigh, 0) > 1:
             continue
 
-        heuristic = evaluate_neighbor(
-            check_preconds=passability_checker,
+        heuristic, effects = evaluate_neighbor(
+            check_preconds=preconditions_checker,
             neigh=neigh,
             current_pos=start_pos,
             goal=goal,
             neighbor_measure=_neighbor_measure,
             goal_measure=_goal_measure,
             blackboard=_blackboard,
+            get_effects=get_effects
         )
 
-        stored_neigh_cost, stored_curr_parent, stored_blackboard = _paths.get(neigh) or (float("inf"), None, None)
+        stored_neigh_cost, stored_curr_parent, _ = _paths.get(neigh) or (PLUS_INF, None, None)
         total_cost = curr_cost + heuristic
+        frozen_effects = tuple(effects.items())
 
         if total_cost < stored_neigh_cost:
-            _paths[neigh] = (total_cost, start_pos, None)
+            _paths[neigh] = (total_cost, start_pos, frozen_effects)
 
-        heapq.heappush(
-            _pqueue,
-            (total_cost, neigh, None)
-        )
+        cand_tuple = (total_cost, neigh, start_pos, frozen_effects)
+
+        if cand_tuple not in _pqueue and total_cost < PLUS_INF:
+            heapq.heappush(
+                _pqueue,
+                cand_tuple
+            )
 
     if not _pqueue:
         raise EmptyQueueError("Exhausted all candidates before a path was found!")
 
-    cand_cost, cand_pos, cand_blackboard = heapq.heappop(_pqueue)
+    try:
+        cand_cost, cand_pos, src_pos, raw_cand_blackboard = heapq.heappop(_pqueue)
 
-    return True, dict(
+    except TypeError as Terr:
+        print(_pqueue)
+        raise
+
+    cand_blackboard = dict(raw_cand_blackboard)
+
+    result = True, dict(
         start_pos=cand_pos,
         goal=goal,
         adjacency_gen=adjacency_gen,
-        passability_checker=passability_checker,
+        preconditions_checker=preconditions_checker,
         parent_callback=parent_callback,
-        root=_root,
         curr_cost=cand_cost,
         visited=_visited,
         paths=_paths,
         neighbor_measure=_neighbor_measure,
         goal_measure=_goal_measure,
         queue=_pqueue,
+        goal_checker=_goal_check,
+        get_effects=get_effects,
+        blackboard=cand_blackboard,
+        _iter=_iter+1
     )
+    return result
 
 
 def solve_astar(
     start_pos,
     goal,
     adjacency_gen,
-    passability_check,
+    preconditions_check,
     handle_backtrack_node,
     visited=None,
     paths=None,
     neighbor_measure=None,
     goal_measure=None,
+    blackboard=None,
+    goal_check=None,
+    get_effects=None,
 ):
     continue_search, next_params = True, dict(
         adjacency_gen=adjacency_gen,
-        passability_checker=passability_check,
+        preconditions_checker=preconditions_check,
         parent_callback=handle_backtrack_node,
         start_pos=start_pos,
         goal=goal,
@@ -172,7 +211,9 @@ def solve_astar(
         paths=paths,
         neighbor_measure=neighbor_measure,
         goal_measure=goal_measure,
-        blackboard=None,
+        blackboard=blackboard,
+        goal_checker=goal_check,
+        get_effects=get_effects,
     )
 
     best_cost, best_parent = None, None
@@ -182,7 +223,6 @@ def solve_astar(
         continue_search, new_params = _astar_deepening_search(**next_params)
         last_params, next_params = next_params, new_params
 
-        # print(next_params)
         if continue_search:
             result_paths = next_params["paths"]
         else:
@@ -192,8 +232,14 @@ def solve_astar(
 
     parent_cost, optimum_parent = best_cost, best_parent
 
-    while optimum_parent is not start_pos:
-        parent_cost, optimum_parent, stored_blackboard = result_paths.get(optimum_parent)
-        handle_backtrack_node(optimum_parent)
+    if optimum_parent not in result_paths:
+        raise NoPathError
 
-    return best_cost, best_parent
+    parent_cost, optimum_parent, raw_optimum_blackboard = result_paths[optimum_parent]
+    optimum_blackboard = dict(raw_optimum_blackboard)
+    path = optimum_blackboard["src"]
+
+    for parent_elem in path[-1::-1]:
+        handle_backtrack_node(parent_elem)
+
+    return best_cost, path
