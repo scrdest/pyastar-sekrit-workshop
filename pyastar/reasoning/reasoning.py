@@ -1,13 +1,12 @@
 from pyastar.measures import action_graph_dist
-from pyastar.maputils import ActionGraph, reasoning_map
-from pyastar.impls.goap_v1 import solve_astar
+from pyastar.maputils import ActionGraph
+from pyastar.impls.goap import solve_astar
 
 
 def main():
     start = "work"
     goal = "work again"
 
-    # raw_map = reasoning_map()
     raw_map = {
         "eat": {"sleep": 1, "wash dishes": 3},
         "sleep": {"wash dishes": 8, "eat": 1},
@@ -23,11 +22,15 @@ def main():
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(start_pos=start, goal=goal, adjacency_gen=newmap.adjacent_lazy,
-                             passability_check=newmap.is_passable,
-                             handle_backtrack_node=lambda parent: newmap.add_to_path(parent),
-                             neighbor_measure=action_graph_dist(newmap),
-                             goal_measure=action_graph_dist(newmap, default_cost=0.))
+    cost, path = solve_astar(
+        start_pos=start,
+        goal=goal,
+        adjacency_gen=newmap.adjacent_lazy,
+        passability_check=newmap.is_passable,
+        handle_backtrack_node=lambda parent: newmap.add_to_path(parent),
+        neighbor_measure=action_graph_dist(newmap),
+        goal_measure=action_graph_dist(newmap, default_cost=0.)
+    )
 
     print(cost)
 
