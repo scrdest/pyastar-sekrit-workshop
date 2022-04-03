@@ -1,0 +1,14 @@
+{
+    "DebugGetSimple": [
+        100,
+        {
+            "_isState": true,
+            "_stateName": "State"
+        },
+        {
+            "Debug": 1,
+            "_isState": true,
+            "_stateName": "State"
+        }
+    ]
+}

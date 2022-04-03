@@ -1,0 +1,25 @@
+{
+    "Eat": [
+        1,
+        {
+            "HasFood": 1,
+            "_isState": true,
+            "_stateName": "eat"
+        },
+        {
+            "Fed": 1,
+            "HasFood": -1,
+            "_isState": true
+        }
+    ],
+    "GetFood": [
+        1,
+        {
+            "_isState": true
+        },
+        {
+            "HasFood": 1,
+            "_isState": true
+        }
+    ]
+}
