@@ -1,5 +1,5 @@
 import pytest
-from pyastar.reasoning import reasoning_v3
+from pyastar.reasoning import reasoning
 
 
 @pytest.mark.parametrize(
@@ -29,8 +29,8 @@ from pyastar.reasoning import reasoning_v3
     )
 )
 def test_preconds(action, blackboard, expected):
-    map = reasoning_v3.custom_map()
-    prec_checker = reasoning_v3.preconds_checker_for(map)
+    map = reasoning.custom_map()
+    prec_checker = reasoning.preconds_checker_for(map)
     result = prec_checker(action, blackboard)
     assert result is expected
 

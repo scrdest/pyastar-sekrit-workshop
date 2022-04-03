@@ -1,24 +1,18 @@
+import os
 import typing
 
 from pyastar.maputils import ActionGraph
-from pyastar.impls.goap import solve_astar
+from pyastar.impls.goap import solve_astar, update_counts
 from pyastar.reasoning.utils import State
+from pyastar.reasoning.maps import load_map_json, save_map_json
+
+CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+MAPDIR_SUFF = "maps"
+MAPS_DIR = os.path.join(CURR_DIR, MAPDIR_SUFF)
 
 
 def custom_map():
-    actionmap = {
-        "Eat": (1, State.fromdict({"HasFood": 1, "HasCleanDishes": 1}, "eat"), State.fromdict({"HasDirtyDishes": 1, "HasCleanDishes": -1, "Fed": 1, "HasFood": -1})),
-        "Shop": (1, State.fromdict({"Money": 10}), State.fromdict({"HasFood": 1, "Money": -10})),
-        "Party": (1, State.fromdict({"Money": 11}), State.fromdict({"Rested": 1, "Money": -11})),
-        "Sleep": (1, State.fromdict({"Fed": 1, }), State.fromdict({"Rested": 10})),
-        "DishWash": (1, State.fromdict({"HasDirtyDishes": 1}), State.fromdict({"HasDirtyDishes": -1, "HasCleanDishes": 1})),
-        "Work": (1, State.fromdict({"Rested": 1}), State.fromdict({"Money": 10})),
-        "Idle": (1, State(name="idle"), State.fromdict({"Rested": 1})),
-        "DebugGetSimple": (100, State(), State(Debug=1)),
-        # "DebugCheapFeed": (1, State(), State(Fed=1)),
-        # "DebugExpensiveFeed": (100, State(), State(Fed=1)),
-    }
-
+    actionmap = load_map_json("map1")
     return actionmap
 
 
@@ -81,13 +75,17 @@ def goal_checker_for(mapobj):
     effect_getter = get_effects(mapobj=mapobj)
 
     def _goalchecker(pos, goal):
-        match = False
+        match = True
         pos_effects = effect_getter(pos) if isinstance(pos, str) else pos
 
         for state, value in goal.items():
+            if value is None:
+                continue
+
             if pos_effects.get(state, 0) < value:
                 match = False
                 break
+
             match = True
 
         return match
@@ -123,9 +121,9 @@ def main():
     # goal = State.fromdict({"Rested": 10}, name="END")
     # goal = State.fromdict({"Rested": 10, "Debug": 1}, name="END")
     # goal = State.fromdict({"Rested": 10}, name="END")
+    # goal = State.fromdict({"Rested": 10, "Debug": 1}, name="END")
     goal = State.fromdict({"Debug": 1}, name="END")
 
-    # raw_map = reasoning_map()
     raw_map = custom_map()
 
     newmap = (
@@ -143,7 +141,9 @@ def main():
         neighbor_measure=neighbor_measure(raw_map),
         goal_measure=no_goal_heuristic,
         goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map)
+        get_effects=get_effects(raw_map),
+        cutoff_iter=500,
+        max_heap_size=100,
     )
 
     print(cost)
