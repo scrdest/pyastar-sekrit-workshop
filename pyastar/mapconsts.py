@@ -1,0 +1,6 @@
+WALL = "[#]"
+OPEN = "[ ]"
+PATH = "[.]"
+GOAL = "[!]"
+CURR = "[@]"
+SLOW = "[~]"
