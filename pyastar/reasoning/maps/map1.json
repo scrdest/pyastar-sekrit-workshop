@@ -40,6 +40,7 @@
         {
             "Rested": 1,
             "Money": -11,
+            "Fun": 4,
             "_isState": true,
             "_stateName": "State"
         }

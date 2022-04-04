@@ -62,14 +62,12 @@
         1,
         {
             "HasDirtyDishes": 1,
-            "Rested": 1,
             "_isState": true,
             "_stateName": "State"
         },
         {
             "HasDirtyDishes": -1,
             "HasCleanDishes": 1,
-            "Rested": -1,
             "_isState": true,
             "_stateName": "State"
         }

@@ -39,9 +39,11 @@ any *other* functions than the next worker call anyway.
 import copy
 import functools
 import heapq
+import typing
 
 from pyastar.reasoning.utils import State
 from pyastar.measures import action_graph_dist
+from pyastar.types import StateLike
 
 
 class EmptyQueueError(Exception):
@@ -134,20 +136,21 @@ def cached_parse_effects(effects_checker):
 
 
 def _astar_deepening_search(
-    start_pos,
-    goal,
-    adjacency_gen,
-    preconditions_checker,
-    curr_cost=0,
-    paths=None,
-    neighbor_measure=None,
-    goal_measure=None,
-    queue=False,
-    goal_checker=None,
-    get_effects=None,
-    blackboard=None,
-    max_heap_size=None,
-    _iter=1
+    start_pos: StateLike,
+    goal: StateLike,
+    adjacency_gen: typing.Callable[[StateLike], typing.Sequence[StateLike]],
+    preconditions_checker: typing.Callable[[StateLike], bool],
+    max_heap_size: int = None,
+    goal_checker: typing.Optional[typing.Callable[[StateLike], bool]] = None,
+    get_effects: typing.Optional[typing.Callable[[StateLike], float]] = None,
+    neighbor_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
+    goal_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
+    pqueue_key_func: typing.Optional[typing.Callable[[int, float, float], tuple]] = None,
+    blackboard: typing.Optional[dict] = None,
+    paths: typing.Optional[dict] = None,
+    queue: typing.Optional[list] = None,
+    curr_cost: float = 0,
+    _iter=1,
 ):
 
     _paths = paths or dict()
@@ -166,6 +169,7 @@ def _astar_deepening_search(
 
     _neighbor_measure = neighbor_measure or action_graph_dist
     _goal_measure = goal_measure or action_graph_dist
+    priority_key = (1,)
 
     neighbors = adjacency_gen(start_pos)
 
@@ -201,7 +205,8 @@ def _astar_deepening_search(
         # hopefully the cheap action will have a followup that satisfies
         # the search goal (in other words, depth-first search).
         # ===================================================================
-        cand_tuple = (_iter, total_cost, neigh, src)
+        priority_key = pqueue_key_func(_iter, curr_cost, heuristic) if pqueue_key_func else (_iter,)
+        cand_tuple = (priority_key, total_cost, neigh, src)
 
         if cand_tuple not in _pqueue and total_cost < PLUS_INF:
             heapq.heappush(
@@ -214,7 +219,7 @@ def _astar_deepening_search(
     if not _pqueue:
         raise EmptyQueueError("Exhausted all candidates before a path was found!")
 
-    _, cand_cost, cand_pos, src_pos = heapq.heappop(_pqueue)
+    cand_cost, cand_pos, src_pos = heapq.heappop(_pqueue)[1:]
 
     fx_rebuilder = cached_parse_effects(get_effects)
     stack = tuple(src_pos + [cand_pos])
@@ -255,6 +260,7 @@ def solve_astar(
     get_effects=None,
     cutoff_iter=1000,
     max_heap_size=None,
+    pqueue_key_func=None
 ):
     continue_search, next_params = True, dict(
         adjacency_gen=adjacency_gen,
@@ -267,6 +273,7 @@ def solve_astar(
         goal_checker=goal_check,
         get_effects=get_effects,
         max_heap_size=max_heap_size,
+        pqueue_key_func=pqueue_key_func,
     )
 
     best_cost, best_parent = None, None

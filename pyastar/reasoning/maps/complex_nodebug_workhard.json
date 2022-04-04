@@ -39,6 +39,7 @@
         },
         {
             "Rested": 1,
+            "Fun": 4,
             "Money": -11,
             "_isState": true,
             "_stateName": "State"

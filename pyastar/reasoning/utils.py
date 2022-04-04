@@ -26,7 +26,7 @@ class State(types.SimpleNamespace):
     def items(self):
         return (i for i in self.__dict__.items() if not i[0][0] == "_")
 
-    def get(self, key, default):
+    def get(self, key, default=None):
         return self.__dict__.get(key, default)
 
     def __deepcopy__(self, memodict):
