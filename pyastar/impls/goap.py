@@ -36,6 +36,7 @@ to the function we need called rather than a proper thunk, because data is nicer
 and serde rather than dealing with raw continuations. It's not like we ever need to call
 any *other* functions than the next worker call anyway.
 """
+import abc
 import copy
 import functools
 import heapq
@@ -43,7 +44,7 @@ import typing
 
 from pyastar.reasoning.utils import State
 from pyastar.measures import action_graph_dist
-from pyastar.types import StateLike
+from pyastar.types import StateLike, ActionTuple
 
 
 class EmptyQueueError(Exception):
@@ -252,7 +253,7 @@ def solve_astar(
     goal,
     adjacency_gen,
     preconditions_check,
-    handle_backtrack_node,
+    handle_backtrack_node=None,
     paths=None,
     neighbor_measure=None,
     goal_measure=None,
@@ -262,11 +263,20 @@ def solve_astar(
     max_heap_size=None,
     pqueue_key_func=None
 ):
+
+    _start_pos = start_pos
+    if not isinstance(start_pos, State):
+        _start_pos = State.fromdict(start_pos, name="START")
+
+    _goal = goal
+    if not isinstance(goal, State):
+        _goal = State.fromdict(goal, name="END")
+
     continue_search, next_params = True, dict(
         adjacency_gen=adjacency_gen,
         preconditions_checker=preconditions_check,
-        start_pos=start_pos,
-        goal=goal,
+        start_pos=_start_pos,
+        goal=_goal,
         paths=paths,
         neighbor_measure=neighbor_measure,
         goal_measure=goal_measure,
@@ -295,8 +305,9 @@ def solve_astar(
 
     parent_cost, path = best_cost, best_parent
 
-    for parent_elem in path:
-        handle_backtrack_node(parent_elem)
+    if handle_backtrack_node:
+        for parent_elem in path:
+            handle_backtrack_node(parent_elem)
 
     return best_cost, path
 
@@ -342,11 +353,19 @@ def cacheable_astar_solver(
         goal,
         paths=None,
     ):
+        _start_pos = start_pos
+        if not isinstance(start_pos, State):
+            _start_pos = State.fromdict(start_pos, name="START")
+
+        _goal = goal
+        if not isinstance(goal, State):
+            _goal = State.fromdict(goal, name="END")
+
         continue_search, next_params = True, dict(
             adjacency_gen=adjacency_gen,
             preconditions_checker=preconditions_check,
-            start_pos=start_pos,
-            goal=goal,
+            start_pos=_start_pos,
+            goal=_goal,
             paths=paths,
             neighbor_measure=neighbor_measure,
             goal_measure=goal_measure,
@@ -381,4 +400,140 @@ def cacheable_astar_solver(
         return best_cost, path
 
     return cacheable_solve_astar
+
+
+class BaseGOAP(abc.ABC):
+    cutoff_iter = 1000
+    max_heap_size = None
+
+    def __init__(
+        self,
+        adjacency_gen=None,
+        preconditions_check=None,
+        handle_backtrack_node=None,
+        neighbor_measure=None,
+        goal_measure=None,
+        goal_check=None,
+        get_effects=None,
+        cutoff_iter=None,
+        max_heap_size=None,
+        pqueue_key_func=None,
+        *args,
+        **kwargs
+    ):
+        # All configuration options can be overridden at init if so desired.
+        self.adjacency_gen = adjacency_gen or self.__class__.adjacency_gen
+        self.preconditions_check = preconditions_check or self.__class__.preconditions_check
+        self.handle_backtrack_node = handle_backtrack_node or self.__class__.handle_backtrack_node
+        self.neighbor_measure = neighbor_measure or self.__class__.neighbor_measure
+        self.goal_measure = goal_measure or self.__class__.goal_measure
+        self.goal_check = goal_check or self.__class__.goal_check
+        self.get_effects = get_effects or self.__class__.get_effects
+        self.cutoff_iter = cutoff_iter or self.__class__.cutoff_iter
+        self.max_heap_size = max_heap_size or self.__class__.max_heap_size
+        self.pqueue_key_func = pqueue_key_func or None
+
+
+    @abc.abstractmethod
+    def adjacency_gen(self, *args, **kwargs) -> typing.Iterable:
+        return (i for i in [])
+
+
+    @abc.abstractmethod
+    def preconditions_check(self, curr_state: StateLike, action: ActionTuple, *args, **kwargs) -> bool:
+        return False
+
+
+    @abc.abstractmethod
+    def handle_backtrack_node(self, action: ActionTuple, *args, **kwargs):
+        return
+
+
+    @abc.abstractmethod
+    def neighbor_measure(self, curr_state: StateLike, action: ActionTuple, *args, **kwargs) -> float:
+        return PLUS_INF
+
+
+    @abc.abstractmethod
+    def goal_measure(self, action: ActionTuple, goal: StateLike, *args, **kwargs) -> float:
+        return PLUS_INF
+
+
+    @abc.abstractmethod
+    def goal_check(self, curr_state: StateLike, goal: StateLike, *args, **kwargs) -> bool:
+        return False
+
+
+    @abc.abstractmethod
+    def get_effects(self, action: ActionTuple, *args, **kwargs) -> StateLike:
+        return {}
+
+
+    def partial_with_self(self, func):
+        @functools.wraps(func)
+        def _selfie_wrapper(*args, **kwargs):
+            return func(self, *args, **kwargs)
+        return _selfie_wrapper
+
+
+    def plan(
+        self,
+        start_pos,
+        goal,
+        paths=None,
+        *args,
+        **kwargs
+    ):
+
+        _start_pos = start_pos
+        if not isinstance(start_pos, State):
+            _start_pos = State.fromdict(start_pos, name="START")
+
+        _goal = goal
+        if not isinstance(goal, State):
+            _goal = State.fromdict(goal, name="END")
+
+
+        continue_search, next_params = True, dict(
+            adjacency_gen=self.partial_with_self(self.adjacency_gen),
+            preconditions_checker=self.partial_with_self(self.preconditions_check),
+            start_pos=_start_pos,
+            goal=_goal,
+            paths=paths,
+            neighbor_measure=self.partial_with_self(self.neighbor_measure),
+            goal_measure=self.partial_with_self(self.goal_measure),
+            goal_checker=self.partial_with_self(self.goal_check),
+            get_effects=self.partial_with_self(self.get_effects),
+            max_heap_size=self.max_heap_size,
+            pqueue_key_func=self.pqueue_key_func,
+        )
+
+        best_cost, best_parent = None, None
+        curr_iter = 0
+
+        while next_params:
+            continue_search, next_params = _astar_deepening_search(**next_params)
+
+            if continue_search:
+
+                if self.cutoff_iter is not None:
+                    curr_iter = next_params.get("_iter") or curr_iter + 1
+                    if curr_iter >= self.cutoff_iter:
+                        raise NoPathError(f"Path not found within {self.cutoff_iter} iterations!")
+
+            else:
+                best_cost, best_parent = next_params
+                break
+
+        parent_cost, path = best_cost, best_parent
+
+        if self.handle_backtrack_node:
+            for parent_elem in path:
+                self.handle_backtrack_node(self, parent_elem)
+
+        return best_cost, path
+
+
+    def __call__(self, *args, **kwargs):
+        return self.plan(*args, **kwargs)
 
