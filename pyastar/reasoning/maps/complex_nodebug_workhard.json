@@ -1,0 +1,102 @@
+{
+    "Eat": [
+        1,
+        {
+            "HasFood": 1,
+            "HasCleanDishes": 1,
+            "_isState": true,
+            "_stateName": "eat"
+        },
+        {
+            "HasDirtyDishes": 1,
+            "HasCleanDishes": -1,
+            "Fed": 1,
+            "HasFood": -1,
+            "_isState": true,
+            "_stateName": "State"
+        }
+    ],
+    "Shop": [
+        1,
+        {
+            "Money": 10,
+            "_isState": true,
+            "_stateName": "State"
+        },
+        {
+            "HasFood": 1,
+            "Money": -10,
+            "_isState": true,
+            "_stateName": "State"
+        }
+    ],
+    "Party": [
+        1,
+        {
+            "Money": 11,
+            "_isState": true,
+            "_stateName": "State"
+        },
+        {
+            "Rested": 1,
+            "Money": -11,
+            "_isState": true,
+            "_stateName": "State"
+        }
+    ],
+    "Sleep": [
+        1,
+        {
+            "Fed": 1,
+            "_isState": true,
+            "_stateName": "State"
+        },
+        {
+            "Rested": 10,
+            "_isState": true,
+            "_stateName": "State"
+        }
+    ],
+    "DishWash": [
+        1,
+        {
+            "HasDirtyDishes": 1,
+            "Rested": 1,
+            "_isState": true,
+            "_stateName": "State"
+        },
+        {
+            "HasDirtyDishes": -1,
+            "HasCleanDishes": 1,
+            "Rested": -1,
+            "_isState": true,
+            "_stateName": "State"
+        }
+    ],
+    "Work": [
+        1,
+        {
+            "Rested": 2,
+            "_isState": true,
+            "_stateName": "State"
+        },
+        {
+            "Money": 10,
+            "Rested": -2,
+            "_isState": true,
+            "_stateName": "State"
+        }
+    ],
+    "Idle": [
+        1,
+        {
+            "_isState": true,
+            "_stateName": "idle"
+        },
+        {
+            "Rested": 1,
+            "_isState": true,
+            "_stateName": "State"
+        }
+    ]
+}

@@ -121,7 +121,7 @@ def cached_parse_effects(effects_checker):
 
     @functools.lru_cache(10)
     def _check_effects(src_pos):
-        rebuilt_blackboard = dict()
+        rebuilt_blackboard = BLACKBOARD_CLASS()
 
         for trajectory in src_pos:
             traj_eff = effects_checker(trajectory)
@@ -138,7 +138,6 @@ def _astar_deepening_search(
     goal,
     adjacency_gen,
     preconditions_checker,
-    parent_callback=None,
     curr_cost=0,
     paths=None,
     neighbor_measure=None,
@@ -215,11 +214,7 @@ def _astar_deepening_search(
     if not _pqueue:
         raise EmptyQueueError("Exhausted all candidates before a path was found!")
 
-    try:
-        _, cand_cost, cand_pos, src_pos = heapq.heappop(_pqueue)
-    except TypeError as Terr:
-        print(_pqueue)
-        raise
+    _, cand_cost, cand_pos, src_pos = heapq.heappop(_pqueue)
 
     fx_rebuilder = cached_parse_effects(get_effects)
     stack = tuple(src_pos + [cand_pos])
@@ -233,7 +228,6 @@ def _astar_deepening_search(
         goal=goal,
         adjacency_gen=adjacency_gen,
         preconditions_checker=preconditions_checker,
-        parent_callback=parent_callback,
         curr_cost=cand_cost,
         paths=_paths,
         neighbor_measure=_neighbor_measure,
@@ -259,13 +253,12 @@ def solve_astar(
     goal_measure=None,
     goal_check=None,
     get_effects=None,
-    cutoff_iter=500,
+    cutoff_iter=1000,
     max_heap_size=None,
 ):
     continue_search, next_params = True, dict(
         adjacency_gen=adjacency_gen,
         preconditions_checker=preconditions_check,
-        parent_callback=handle_backtrack_node,
         start_pos=start_pos,
         goal=goal,
         paths=paths,
@@ -280,8 +273,7 @@ def solve_astar(
     curr_iter = 0
 
     while next_params:
-        continue_search, new_params = _astar_deepening_search(**next_params)
-        last_params, next_params = next_params, new_params
+        continue_search, next_params = _astar_deepening_search(**next_params)
 
         if continue_search:
 
@@ -294,10 +286,32 @@ def solve_astar(
             best_cost, best_parent = next_params
             break
 
-
     parent_cost, path = best_cost, best_parent
 
-    for parent_elem in path[-1::-1]:
+    for parent_elem in path:
         handle_backtrack_node(parent_elem)
 
     return best_cost, path
+
+
+def suppress_not_found(default, default_factory=None):
+
+    def _noexc_deco(func):
+
+        def _safety_wrapper(*args, **kwargs):
+            try:
+                result = func(*args, **kwargs)
+
+            except NoPathError:
+                result = default_factory() if default_factory else default
+
+            return result
+
+        return _safety_wrapper
+
+    return _noexc_deco
+
+
+@suppress_not_found(default=None, default_factory=lambda: (PLUS_INF, list()))
+def maybe_solve_astar(*args, **kwargs):
+    return solve_astar(*args, **kwargs)

@@ -536,7 +536,7 @@ class ActionGraph(BasePathfindingGraph):
 
     def visualize(self) -> BasePathfindingGraph:
         stored_path = self.path.copy()
-        str_path = " => ".join((*map(str, reversed(stored_path)), str(self.current_goal)))
+        str_path = " => ".join((*map(str, stored_path), str(self.current_goal)))
         print(str_path)
         return self
 
