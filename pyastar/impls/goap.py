@@ -337,7 +337,7 @@ def cacheable_astar_solver(
     pqueue_key_func=None
 ):
 
-    def solve_astar(
+    def cacheable_solve_astar(
         start_pos,
         goal,
         paths=None,
@@ -380,5 +380,5 @@ def cacheable_astar_solver(
 
         return best_cost, path
 
-    return solve_astar
+    return cacheable_solve_astar
 
