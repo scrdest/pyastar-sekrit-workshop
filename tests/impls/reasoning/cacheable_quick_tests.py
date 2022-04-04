@@ -21,17 +21,12 @@ def test_debug_startisend(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -67,17 +62,12 @@ def test_debug_found_simple(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -110,17 +100,12 @@ def test_debug_found_problematic(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -154,17 +139,12 @@ def test_fed_found_simple(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -199,17 +179,12 @@ def test_fed_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -242,17 +217,12 @@ def test_smol_rested_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -283,17 +253,12 @@ def test_big_rested_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -323,17 +288,12 @@ def test_multigoal_found_complex_food_dirty(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -363,17 +323,12 @@ def test_multigoal_found_complex_food_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -404,17 +359,12 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -446,17 +396,12 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -488,17 +433,12 @@ def test_repeated_goal_debug(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -531,17 +471,12 @@ def test_repeated_goal_money(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     import functools
 
@@ -584,17 +519,12 @@ def test_repeated_multigoal_moneyrest(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,
@@ -626,17 +556,12 @@ def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=maxiters,
-        max_heap_size=maxheap,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=maxiters, max_heap_size=maxheap)
 
     cost, path = solve_astar(
         start_pos=start,

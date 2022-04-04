@@ -2,7 +2,7 @@ import os
 import typing
 
 from pyastar.maputils import ActionGraph
-from pyastar.impls.goap_cachable import astar_solver
+from pyastar.impls.goap import cacheable_astar_solver
 from pyastar.reasoning.utils import State
 from pyastar.reasoning.maps import load_map_json
 
@@ -132,17 +132,12 @@ def main():
         .set_goal(goal)
     )
 
-    solve_astar = astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=500,
-        max_heap_size=100,
-    )
+    solve_astar = cacheable_astar_solver(adjacency_gen=get_actions(raw_map),
+                                         preconditions_check=preconds_checker_for(raw_map),
+                                         handle_backtrack_node=newmap.add_to_path,
+                                         neighbor_measure=neighbor_measure(raw_map), goal_measure=no_goal_heuristic,
+                                         goal_check=goal_checker_for(raw_map), get_effects=get_effects(raw_map),
+                                         cutoff_iter=500, max_heap_size=100)
 
     cost, path = solve_astar(
         start_pos=start,

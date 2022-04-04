@@ -322,3 +322,63 @@ def suppress_not_found(default, default_factory=None):
 @suppress_not_found(default=None, default_factory=lambda: (PLUS_INF, list()))
 def maybe_solve_astar(*args, **kwargs):
     return solve_astar(*args, **kwargs)
+
+
+def cacheable_astar_solver(
+    adjacency_gen,
+    preconditions_check,
+    handle_backtrack_node,
+    neighbor_measure=None,
+    goal_measure=None,
+    goal_check=None,
+    get_effects=None,
+    cutoff_iter=1000,
+    max_heap_size=None,
+    pqueue_key_func=None
+):
+
+    def solve_astar(
+        start_pos,
+        goal,
+        paths=None,
+    ):
+        continue_search, next_params = True, dict(
+            adjacency_gen=adjacency_gen,
+            preconditions_checker=preconditions_check,
+            start_pos=start_pos,
+            goal=goal,
+            paths=paths,
+            neighbor_measure=neighbor_measure,
+            goal_measure=goal_measure,
+            goal_checker=goal_check,
+            get_effects=get_effects,
+            max_heap_size=max_heap_size,
+            pqueue_key_func=pqueue_key_func,
+        )
+
+        best_cost, best_parent = None, None
+        curr_iter = 0
+
+        while next_params:
+            continue_search, next_params = _astar_deepening_search(**next_params)
+
+            if continue_search:
+
+                if cutoff_iter is not None:
+                    curr_iter = next_params.get("_iter") or curr_iter + 1
+                    if curr_iter >= cutoff_iter:
+                        raise NoPathError(f"Path not found within {cutoff_iter} iterations!")
+
+            else:
+                best_cost, best_parent = next_params
+                break
+
+        parent_cost, path = best_cost, best_parent
+
+        for parent_elem in path:
+            handle_backtrack_node(parent_elem)
+
+        return best_cost, path
+
+    return solve_astar
+
