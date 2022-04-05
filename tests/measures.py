@@ -1,5 +1,5 @@
-from pyastar import measures
-from pyastar.maputils import ActionGraph
+from goapystar import measures
+from goapystar.maputils import ActionGraph
 
 
 def test_action_graph_dist():

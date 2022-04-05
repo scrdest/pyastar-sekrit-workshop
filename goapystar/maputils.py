@@ -4,8 +4,8 @@ import abc
 import functools
 import typing
 
-from pyastar.mapconsts import WALL, OPEN, PATH, GOAL, CURR, SLOW
-from pyastar.measures import manhattan_distance
+from goapystar.mapconsts import WALL, OPEN, PATH, GOAL, CURR, SLOW
+from goapystar.measures import manhattan_distance
 
 
 def map_1():

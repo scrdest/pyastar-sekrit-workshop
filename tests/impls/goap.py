@@ -1,5 +1,5 @@
 import pytest
-from pyastar.reasoning import reasoning
+from goapystar.reasoning import reasoning
 
 
 @pytest.mark.parametrize(

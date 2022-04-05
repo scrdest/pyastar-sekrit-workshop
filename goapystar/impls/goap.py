@@ -43,9 +43,9 @@ import heapq
 import operator
 import typing
 
-from pyastar.reasoning.utils import State
-from pyastar.measures import action_graph_dist, equality_check
-from pyastar.types import StateLike, ActionTuple, ActionKey, IntoState, CandidateTuple, PathTuple, ResultTuple
+from goapystar.reasoning.utils import State
+from goapystar.measures import action_graph_dist, equality_check
+from goapystar.types import StateLike, ActionTuple, ActionKey, IntoState, CandidateTuple, PathTuple, ResultTuple
 
 
 class EmptyQueueError(Exception):
@@ -480,7 +480,7 @@ class BaseGOAP(abc.ABC):
         self,
         start_pos: IntoState,
         goal: StateLike,
-        paths: typing.Optional[ActionKey, PathTuple] = None,
+        paths: typing.Optional[typing.Dict[ActionKey, PathTuple]] = None,
         *args,
         **kwargs
     ) -> ResultTuple:

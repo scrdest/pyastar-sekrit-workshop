@@ -14,63 +14,41 @@ any *other* functions than the next worker call anyway.
 
 More cacheable in principle AND resumable - since each worker call handles only a single
 piece of work (evaluating one node), the full search can be chunked up arbitrarily.
-
-This is a variant of the 'trampolined' module. Most of the references to custom data structures
-and stateful nonsense had been quarantined behind callbacks to make things more generic.
 """
 
-
 import heapq
-from pyastar.maputils import Map2D, evaluate_neighbor
-from pyastar.measures import manhattan_distance, minkowski_distance, obstacle_dist
+from goapystar.maputils import Map2D, evaluate_neighbor
+from goapystar.measures import minkowski_distance
 
 
-class EmptyQueueError(Exception):
-    pass
-
-
-def _astar_deepening_search(
-    start_pos,
-    goal,
-    adjacency_gen,
-    impassability_checker,
-    parent_callback=None,
-    root=None,
-    curr_cost=0,
-    visited=None,
-    paths=None,
-    neighbor_measure=None,
-    goal_measure=None,
-    queue=False,
-):
-
-    _root = root or start_pos
+# this is our 'worker' function
+def _astar_deepening_search(graph: Map2D, start_pos, goal, root=None, curr_cost=0, visited=None, paths=None, measure=None, queue=None):
     _paths = paths or dict()
-    _pqueue = queue or []
 
     if start_pos == goal:
         cost, parent = _paths.get(goal) or (curr_cost, start_pos)
-        if parent and parent_callback:
-            parent_callback(parent)
+        if parent:
+            graph.add_to_path(parent)
+            graph.visualize()
         return False, (cost, parent)
 
-    _neighbor_measure = neighbor_measure or minkowski_distance(2)
-    _goal_measure = goal_measure or minkowski_distance(2)
+    _root = root or start_pos
+    _pqueue = queue or []
+    _measure = measure or minkowski_distance(2)
     _visited = visited or set()
     _visited.add(start_pos)
-    neighbors = adjacency_gen(start_pos)
+    neighbors = graph.adjacent_lazy(start_pos)
 
     for neigh in neighbors:
         if neigh in _visited:
             continue
 
         heuristic = evaluate_neighbor(
-            get_impassable=impassability_checker,
+            get_impassable=graph.is_passable,
             neigh=neigh,
             current_pos=start_pos,
             goal=goal,
-            neighbor_measure=_neighbor_measure,
-            goal_measure=_goal_measure,
+            measure=_measure
         )
 
         stored_neigh_cost, stored_curr_parent = _paths.get(neigh) or (float("inf"), None)
@@ -85,59 +63,37 @@ def _astar_deepening_search(
         )
 
     if not _pqueue:
-        raise EmptyQueueError("Exhausted all candidates before a path was found!")
+        raise LookupError("Exhausted all candidates before a path was found!")
 
     cand_cost, cand_pos = heapq.heappop(_pqueue)
 
     return True, dict(
+        graph=graph,
         start_pos=cand_pos,
         goal=goal,
-        adjacency_gen=adjacency_gen,
-        impassability_checker=impassability_checker,
-        parent_callback=parent_callback,
-        root=_root,
         curr_cost=cand_cost,
+        root=_root,
         visited=_visited,
         paths=_paths,
-        neighbor_measure=_neighbor_measure,
-        goal_measure=_goal_measure,
         queue=_pqueue,
     )
 
 
-def solve_astar_deepening(
-    start_pos,
-    goal,
-    adjacency_gen,
-    impassability_check,
-    handle_backtrack_node,
-    visited=None,
-    paths=None,
-    neighbor_measure=None,
-    goal_measure=None,
-):
+# this is our 'trampoline' function
+def solve_astar_deepening(graph: Map2D, start_pos, goal, visited=None, paths=None):
     continue_search, next_params = True, dict(
-        adjacency_gen=adjacency_gen,
-        impassability_checker=impassability_check,
-        parent_callback=handle_backtrack_node,
+        graph=graph,
         start_pos=start_pos,
         goal=goal,
         visited=visited,
-        paths=paths,
-        neighbor_measure=neighbor_measure,
-        goal_measure=goal_measure,
+        paths=paths
     )
     best_cost, best_parent = None, None
     result_paths = dict()
 
     while next_params:
-        try:
-            continue_search, new_params = _astar_deepening_search(**next_params)
-            last_params, next_params = next_params, new_params
-
-        except ModuleNotFoundError:
-            continue_search, next_params = False, next_params
-        # print(next_params)
+        continue_search, next_params = _astar_deepening_search(**next_params)
+        print(next_params)
         if continue_search:
             result_paths = next_params["paths"]
         else:
@@ -148,14 +104,14 @@ def solve_astar_deepening(
     parent_cost, optimum_parent = best_cost, best_parent
     while optimum_parent is not start_pos:
         parent_cost, optimum_parent = result_paths.get(optimum_parent)
-        handle_backtrack_node(optimum_parent)
+        graph.add_to_path(optimum_parent)
 
     return best_cost, best_parent
 
 
 def main():
-    start = (35, 35)
-    goal = (1, 35)
+    start = (1, 1)
+    goal = (9, 2)
 
     newmap = (
         Map2D(diagonals=False)
@@ -165,12 +121,9 @@ def main():
     )
 
     cost, path = solve_astar_deepening(
+        newmap,
         start_pos=start,
-        goal=goal,
-        adjacency_gen=newmap.adjacent_lazy,
-        impassability_check=newmap.is_passable,
-        handle_backtrack_node=lambda parent: newmap.add_to_path(parent),
-        measure=obstacle_dist(newmap, manhattan_distance)
+        goal=goal
     )
 
     print(cost)

@@ -1,5 +1,5 @@
 import pytest
-from pyastar.reasoning.reasoning_classy import *
+from goapystar.reasoning.reasoning_classy import *
 
 
 @pytest.mark.parametrize(("mapname", "maxiters", "maxheap"), (

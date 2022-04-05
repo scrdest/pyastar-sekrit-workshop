@@ -1,12 +1,12 @@
 import os
 import typing
 
-from pyastar.maputils import ActionGraph
-from pyastar.impls.goap import solve_astar
-from pyastar.measures import no_goal_heuristic
-from pyastar.reasoning.utils import State
-from pyastar.reasoning.maps import load_map_json
-from pyastar.types import ActionKey, ActionDict, StateLike
+from goapystar.maputils import ActionGraph
+from goapystar.impls.goap import solve_astar
+from goapystar.measures import no_goal_heuristic
+from goapystar.reasoning.utils import State
+from goapystar.reasoning.maps import load_map_json
+from goapystar.types import ActionKey, ActionDict, StateLike
 
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 MAPDIR_SUFF = "maps"

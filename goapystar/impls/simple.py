@@ -4,8 +4,8 @@ Basic, for-loopy implementation.
 """
 
 import heapq
-from pyastar.maputils import Map2D, evaluate_neighbor
-from pyastar.measures import minkowski_distance
+from goapystar.maputils import Map2D, evaluate_neighbor
+from goapystar.measures import minkowski_distance
 
 
 def solve_astar(graph: Map2D, start_pos, goal, paths=None):

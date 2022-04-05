@@ -1,14 +1,15 @@
 [tool.poetry]
-name = "pyastar"
+name = "GoapyStar"
 version = "0.1.0"
-description = ""
-authors = ["jmalek <jan.malek@gmail.com>"]
+description = "GOAP AI for Python - serious, flexible and modern."
+authors = ["Jan Malek <jan.malek@gmail.com>"]
+keywords = ["AI", "A*", "Astar", "Pathfinding"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pytest = "^7.1.1"
 
 [tool.poetry.dev-dependencies]
+pytest = "^7.1.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

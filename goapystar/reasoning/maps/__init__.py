@@ -2,7 +2,7 @@ import json
 import os
 import typing
 
-from pyastar.reasoning.utils import State
+from goapystar.reasoning.utils import State
 
 
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))

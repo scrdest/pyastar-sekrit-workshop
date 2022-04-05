@@ -5,8 +5,8 @@ More cacheable in principle, but will stack-overflow on larger maps.
 """
 
 import heapq
-from pyastar.maputils import Map2D, evaluate_neighbor
-from pyastar.measures import minkowski_distance
+from goapystar.maputils import Map2D, evaluate_neighbor
+from goapystar.measures import minkowski_distance
 
 
 def _astar_recursive_search(graph: Map2D, start_pos, goal, root=None, curr_cost=0, visited=None, paths=None, measure=None, queue=None):

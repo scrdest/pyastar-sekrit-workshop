@@ -21,8 +21,8 @@ and stateful nonsense had been quarantined behind callbacks to make things more 
 
 
 import heapq
-from pyastar.maputils import Map2D, evaluate_neighbor
-from pyastar.measures import minkowski_distance
+from goapystar.maputils import Map2D, evaluate_neighbor
+from goapystar.measures import manhattan_distance, minkowski_distance, obstacle_dist
 
 
 class EmptyQueueError(Exception):
@@ -39,7 +39,8 @@ def _astar_deepening_search(
     curr_cost=0,
     visited=None,
     paths=None,
-    measure=None,
+    neighbor_measure=None,
+    goal_measure=None,
     queue=False,
 ):
 
@@ -53,7 +54,8 @@ def _astar_deepening_search(
             parent_callback(parent)
         return False, (cost, parent)
 
-    _measure = measure or minkowski_distance(2)
+    _neighbor_measure = neighbor_measure or minkowski_distance(2)
+    _goal_measure = goal_measure or minkowski_distance(2)
     _visited = visited or set()
     _visited.add(start_pos)
     neighbors = adjacency_gen(start_pos)
@@ -67,7 +69,8 @@ def _astar_deepening_search(
             neigh=neigh,
             current_pos=start_pos,
             goal=goal,
-            measure=_measure
+            neighbor_measure=_neighbor_measure,
+            goal_measure=_goal_measure,
         )
 
         stored_neigh_cost, stored_curr_parent = _paths.get(neigh) or (float("inf"), None)
@@ -96,21 +99,33 @@ def _astar_deepening_search(
         curr_cost=cand_cost,
         visited=_visited,
         paths=_paths,
-        measure=measure,
+        neighbor_measure=_neighbor_measure,
+        goal_measure=_goal_measure,
         queue=_pqueue,
     )
 
 
-def solve_astar_deepening(graph: Map2D, start_pos, goal, visited=None, paths=None, measure=None):
+def solve_astar_deepening(
+    start_pos,
+    goal,
+    adjacency_gen,
+    impassability_check,
+    handle_backtrack_node,
+    visited=None,
+    paths=None,
+    neighbor_measure=None,
+    goal_measure=None,
+):
     continue_search, next_params = True, dict(
-        adjacency_gen=graph.adjacent_lazy,
-        impassability_checker=graph.is_passable,
-        parent_callback=lambda parent: graph.add_to_path(parent) and graph.visualize(),
+        adjacency_gen=adjacency_gen,
+        impassability_checker=impassability_check,
+        parent_callback=handle_backtrack_node,
         start_pos=start_pos,
         goal=goal,
         visited=visited,
         paths=paths,
-        measure=measure,
+        neighbor_measure=neighbor_measure,
+        goal_measure=goal_measure,
     )
     best_cost, best_parent = None, None
     result_paths = dict()
@@ -122,7 +137,7 @@ def solve_astar_deepening(graph: Map2D, start_pos, goal, visited=None, paths=Non
 
         except ModuleNotFoundError:
             continue_search, next_params = False, next_params
-        print(next_params)
+        # print(next_params)
         if continue_search:
             result_paths = next_params["paths"]
         else:
@@ -133,14 +148,14 @@ def solve_astar_deepening(graph: Map2D, start_pos, goal, visited=None, paths=Non
     parent_cost, optimum_parent = best_cost, best_parent
     while optimum_parent is not start_pos:
         parent_cost, optimum_parent = result_paths.get(optimum_parent)
-        graph.add_to_path(optimum_parent)
+        handle_backtrack_node(optimum_parent)
 
     return best_cost, best_parent
 
 
 def main():
-    start = (1, 1)
-    goal = (19, 2)
+    start = (35, 35)
+    goal = (1, 35)
 
     newmap = (
         Map2D(diagonals=False)
@@ -150,9 +165,12 @@ def main():
     )
 
     cost, path = solve_astar_deepening(
-        newmap,
         start_pos=start,
-        goal=goal
+        goal=goal,
+        adjacency_gen=newmap.adjacent_lazy,
+        impassability_check=newmap.is_passable,
+        handle_backtrack_node=lambda parent: newmap.add_to_path(parent),
+        measure=obstacle_dist(newmap, manhattan_distance)
     )
 
     print(cost)

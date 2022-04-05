@@ -1,4 +1,4 @@
-from pyastar import maputils
+from goapystar import maputils
 
 
 def test_action_graph_simple_pos_get():
