@@ -5,77 +5,62 @@ from pyastar.maputils import BasePathfindingGraph, ActionGraph
 from pyastar.impls.goap import BaseGOAP
 from pyastar.reasoning.utils import State
 from pyastar.reasoning.maps import load_map_json
-from pyastar.types import ActionTuple, StateLike, IntoState
+from pyastar.measures import no_goal_heuristic
+from pyastar.types import ActionKey, ActionDict, ActionTuple, StateLike, IntoState
 
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 MAPDIR_SUFF = "maps"
 MAPS_DIR = os.path.join(CURR_DIR, MAPDIR_SUFF)
 
 
-def custom_map():
+def custom_map() -> ActionDict:
     actionmap = load_map_json("map1")
     return actionmap
 
 
-def check_preconditions_for_graph(mapobj: dict):
+def get_actions(mapobj: ActionDict) -> typing.Callable:
 
-    def _checker(neighbor, blackboard):
-
-        result = True
-        cost, preconds, effects = mapobj[neighbor]
-
-        for prec_key, prec_value in preconds.items():
-            if blackboard.get(prec_key, 0) < prec_value:
-                return False
-
-        return result
-
-    return _checker
-
-
-def get_actions(mapobj: dict):
-
-    def _actiongetter(*args, **kwargs):
+    def _actiongetter(*args, **kwargs) -> typing.Sequence[ActionKey]:
         result = tuple(mapobj.keys())
         return result
 
     return _actiongetter
 
 
-def get_effects(mapobj: dict):
+def get_effects(mapobj: ActionDict) -> typing.Callable:
 
-    def _actiongetter(action, *args, **kwargs):
+    def _effectgetter(action, *args, **kwargs) -> typing.Sequence[State]:
         if isinstance(action, State):
             effects = action
         else:
             cost, preconds, effects = mapobj.get(action) or (float("inf"), State(), State())
         return effects
 
-    return _actiongetter
+    return _effectgetter
 
 
-def get_preconds(mapobj: dict):
+def get_preconds(mapobj: ActionDict) -> typing.Callable[[ActionKey], typing.Sequence[State]]:
 
-    def _actiongetter(action, *args, **kwargs):
+    def _actiongetter(action: ActionKey, *args, **kwargs) -> typing.Sequence[State]:
         cost, preconds, effects = mapobj[action]
         return preconds
 
     return _actiongetter
 
 
-def neighbor_measure(mapobj: dict):
+def neighbor_measure(mapobj: ActionDict) -> typing.Callable:
 
-    def _measurer(start, end):
+    def _measurer(start, end: ActionKey) -> float:
         cost, preconds, effects = mapobj[end]
         return cost
 
     return _measurer
 
 
-def goal_checker_for(mapobj: dict):
+def goal_checker_for(mapobj: ActionDict) -> typing.Callable:
     effect_getter = get_effects(mapobj=mapobj)
 
-    def _goalchecker(pos, goal):
+    def _goalchecker(pos: StateLike, goal: StateLike) -> bool:
         match = True
         pos_effects = effect_getter(pos) if isinstance(pos, str) else pos
 
@@ -94,13 +79,13 @@ def goal_checker_for(mapobj: dict):
     return _goalchecker
 
 
-def preconds_checker_for(mapobj: dict) -> typing.Callable[[typing.Union[str, dict, State], dict], bool]:
+def preconds_checker_for(mapobj: ActionDict) -> typing.Callable[[typing.Union[ActionKey, StateLike], StateLike], bool]:
     preconds_fetcher = get_preconds(mapobj=mapobj)
 
     def _checker(action, blackboard):
         match = True
 
-        act_preconds = preconds_fetcher(action) if isinstance(action, str) else action
+        act_preconds = preconds_fetcher(action) if isinstance(action, (str, ActionKey)) else action
 
         for state, value in act_preconds.items():
             if blackboard.get(state, 0) < value:
@@ -111,9 +96,6 @@ def preconds_checker_for(mapobj: dict) -> typing.Callable[[typing.Union[str, dic
 
     return _checker
 
-
-def no_goal_heuristic(start, end):
-    return 1
 
 
 class ReasoningGOAP(BaseGOAP):

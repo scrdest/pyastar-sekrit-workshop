@@ -40,11 +40,12 @@ import abc
 import copy
 import functools
 import heapq
+import operator
 import typing
 
 from pyastar.reasoning.utils import State
-from pyastar.measures import action_graph_dist
-from pyastar.types import StateLike, ActionTuple
+from pyastar.measures import action_graph_dist, equality_check
+from pyastar.types import StateLike, ActionTuple, ActionKey, IntoState, CandidateTuple, PathTuple, ResultTuple
 
 
 class EmptyQueueError(Exception):
@@ -59,24 +60,26 @@ PLUS_INF = float("inf")
 BLACKBOARD_CLASS = dict
 
 
-def update_counts(src: dict, new: dict, default=0):
-    for new_key, add_val in new.items():
+def update_counts(src: dict, new: dict, default=0, op=None):
+    _op = op or operator.add
+
+    for new_key, new_val in new.items():
         curr_value = src.get(new_key, default)
-        src[new_key] = curr_value + add_val
+        src[new_key] = _op(curr_value, new_val)
 
     return src
 
 
 def evaluate_neighbor(
-    check_preconds,
-    neigh,
-    current_pos,
-    goal,
-    blackboard=None,
-    measure=None,
-    neighbor_measure=None,
-    goal_measure=None,
-    get_effects=None,
+    check_preconds: typing.Callable[[IntoState, StateLike], bool],
+    neigh: ActionKey,
+    current_pos: IntoState,
+    goal: StateLike,
+    blackboard: typing.Optional[StateLike] = None,
+    measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
+    neighbor_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
+    goal_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
+    get_effects: typing.Optional[typing.Callable[[ActionKey], StateLike]] = None,
 ):
     _neighbor_measure = neighbor_measure or measure or action_graph_dist
     _goal_measure = goal_measure or measure or action_graph_dist
@@ -116,10 +119,6 @@ def evaluate_neighbor(
     return heuristic, effects
 
 
-def equality_check(pos, goal):
-    return pos == goal
-
-
 def cached_parse_effects(effects_checker):
 
     @functools.lru_cache(10)
@@ -137,19 +136,19 @@ def cached_parse_effects(effects_checker):
 
 
 def _astar_deepening_search(
-    start_pos: StateLike,
+    start_pos: IntoState,
     goal: StateLike,
-    adjacency_gen: typing.Callable[[StateLike], typing.Sequence[StateLike]],
-    preconditions_checker: typing.Callable[[StateLike], bool],
+    adjacency_gen: typing.Callable[[StateLike], typing.Iterable[ActionKey]],
+    preconditions_checker: typing.Callable[[IntoState, StateLike], bool],
     max_heap_size: int = None,
     goal_checker: typing.Optional[typing.Callable[[StateLike], bool]] = None,
     get_effects: typing.Optional[typing.Callable[[StateLike], float]] = None,
     neighbor_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
     goal_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
     pqueue_key_func: typing.Optional[typing.Callable[[int, float, float], tuple]] = None,
-    blackboard: typing.Optional[dict] = None,
-    paths: typing.Optional[dict] = None,
-    queue: typing.Optional[list] = None,
+    blackboard: typing.Optional[StateLike] = None,
+    paths: typing.Optional[typing.Dict[ActionKey, PathTuple]] = None,
+    queue: typing.Optional[typing.MutableSequence[CandidateTuple]] = None,
     curr_cost: float = 0,
     _iter=1,
 ):
@@ -170,7 +169,6 @@ def _astar_deepening_search(
 
     _neighbor_measure = neighbor_measure or action_graph_dist
     _goal_measure = goal_measure or action_graph_dist
-    priority_key = (1,)
 
     neighbors = adjacency_gen(start_pos)
 
@@ -249,19 +247,19 @@ def _astar_deepening_search(
 
 
 def solve_astar(
-    start_pos,
-    goal,
-    adjacency_gen,
-    preconditions_check,
-    handle_backtrack_node=None,
-    paths=None,
-    neighbor_measure=None,
-    goal_measure=None,
-    goal_check=None,
-    get_effects=None,
-    cutoff_iter=1000,
-    max_heap_size=None,
-    pqueue_key_func=None
+    start_pos: IntoState,
+    goal: IntoState,
+    adjacency_gen: typing.Callable[[StateLike], typing.Iterable[ActionTuple]],
+    preconditions_check: typing.Callable[[StateLike], bool],
+    handle_backtrack_node: typing.Optional[typing.Callable[[ActionTuple], typing.Any]] = None,
+    paths: typing.Optional[typing.Dict[ActionKey, PathTuple]] = None,
+    neighbor_measure: typing.Callable[[StateLike], bool] = None,
+    goal_measure: typing.Callable[[StateLike], bool] = None,
+    goal_check: typing.Optional[typing.Callable[[StateLike], bool]] = None,
+    get_effects: typing.Optional[typing.Callable[[StateLike], float]] = None,
+    cutoff_iter: typing.Optional[int] = 1000,
+    max_heap_size: typing.Optional[int] = None,
+    pqueue_key_func: typing.Optional[typing.Callable] = None,
 ):
 
     _start_pos = start_pos
@@ -309,6 +307,7 @@ def solve_astar(
         for parent_elem in path:
             handle_backtrack_node(parent_elem)
 
+    print(curr_iter)
     return best_cost, path
 
 
@@ -336,23 +335,24 @@ def maybe_solve_astar(*args, **kwargs):
 
 
 def cacheable_astar_solver(
-    adjacency_gen,
-    preconditions_check,
-    handle_backtrack_node,
-    neighbor_measure=None,
-    goal_measure=None,
-    goal_check=None,
-    get_effects=None,
-    cutoff_iter=1000,
-    max_heap_size=None,
-    pqueue_key_func=None
+    adjacency_gen: typing.Callable[[StateLike], typing.Iterable[ActionTuple]],
+    preconditions_check: typing.Callable[[StateLike], bool],
+    handle_backtrack_node: typing.Optional[typing.Callable[[ActionTuple], typing.Any]] = None,
+    neighbor_measure: typing.Callable[[StateLike], bool] = None,
+    goal_measure: typing.Callable[[StateLike], bool] = None,
+    goal_check: typing.Optional[typing.Callable[[StateLike], bool]] = None,
+    get_effects: typing.Optional[typing.Callable[[StateLike], float]] = None,
+    cutoff_iter: typing.Optional[int] = 1000,
+    max_heap_size: typing.Optional[int] = None,
+    pqueue_key_func: typing.Optional[typing.Callable] = None,
 ):
 
     def cacheable_solve_astar(
-        start_pos,
-        goal,
-        paths=None,
-    ):
+        start_pos: IntoState,
+        goal: StateLike,
+        paths: typing.Optional[typing.Dict[ActionKey, PathTuple]] = None,
+    ) -> ResultTuple:
+
         _start_pos = start_pos
         if not isinstance(start_pos, State):
             _start_pos = State.fromdict(start_pos, name="START")
@@ -408,18 +408,18 @@ class BaseGOAP(abc.ABC):
 
     def __init__(
         self,
-        adjacency_gen=None,
-        preconditions_check=None,
-        handle_backtrack_node=None,
-        neighbor_measure=None,
-        goal_measure=None,
-        goal_check=None,
-        get_effects=None,
-        cutoff_iter=None,
-        max_heap_size=None,
-        pqueue_key_func=None,
+        adjacency_gen: typing.Optional[typing.Callable[[StateLike], typing.Iterable[ActionTuple]]] = None,
+        preconditions_check: typing.Optional[typing.Callable[[StateLike], bool]] = None,
+        handle_backtrack_node: typing.Optional[typing.Callable[[ActionTuple], typing.Any]] = None,
+        neighbor_measure: typing.Callable[[StateLike], bool] = None,
+        goal_measure: typing.Callable[[StateLike], bool] = None,
+        goal_check: typing.Optional[typing.Callable[[StateLike], bool]] = None,
+        get_effects: typing.Optional[typing.Callable[[StateLike], float]] = None,
+        cutoff_iter: typing.Optional[int] = None,
+        max_heap_size: typing.Optional[int] = None,
+        pqueue_key_func: typing.Optional[typing.Callable] = None,
         *args,
-        **kwargs
+        **kwargs,
     ):
         # All configuration options can be overridden at init if so desired.
         self.adjacency_gen = adjacency_gen or self.__class__.adjacency_gen
@@ -435,7 +435,7 @@ class BaseGOAP(abc.ABC):
 
 
     @abc.abstractmethod
-    def adjacency_gen(self, *args, **kwargs) -> typing.Iterable:
+    def adjacency_gen(self, *args, **kwargs) -> typing.Iterable[ActionTuple]:
         return (i for i in [])
 
 
@@ -478,12 +478,12 @@ class BaseGOAP(abc.ABC):
 
     def plan(
         self,
-        start_pos,
-        goal,
-        paths=None,
+        start_pos: IntoState,
+        goal: StateLike,
+        paths: typing.Optional[ActionKey, PathTuple] = None,
         *args,
         **kwargs
-    ):
+    ) -> ResultTuple:
 
         _start_pos = start_pos
         if not isinstance(start_pos, State):
@@ -534,6 +534,6 @@ class BaseGOAP(abc.ABC):
         return best_cost, path
 
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> ResultTuple:
         return self.plan(*args, **kwargs)
 

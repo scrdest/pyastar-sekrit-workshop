@@ -97,3 +97,10 @@ def action_graph_dist(
 
     return _actual_measure
 
+
+def equality_check(pos, goal):
+    return pos == goal
+
+
+def no_goal_heuristic(start, end):
+    return 1
