@@ -18,3 +18,5 @@ IntoState = typing.Union[StateLike, ActionTuple, ActionKey]
 PathTuple = typing.Tuple[Cost, ActionKey, typing.Sequence[ActionKey]]
 CandidateTuple = typing.Tuple[typing.Any, Cost, ActionKey, typing.Sequence[ActionKey]]
 ResultTuple = typing.Tuple[Cost, typing.Sequence[IntoState]]
+
+BlackboardBinOp = typing.Callable[[dict, dict], typing.Any]

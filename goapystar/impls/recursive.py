@@ -5,7 +5,7 @@ More cacheable in principle, but will stack-overflow on larger maps.
 """
 
 import heapq
-from goapystar.maputils import Map2D, evaluate_neighbor
+from goapystar.maputils import Map2D, evaluate_neighbor, map_2
 from goapystar.measures import minkowski_distance
 
 
@@ -31,7 +31,7 @@ def _astar_recursive_search(graph: Map2D, start_pos, goal, root=None, curr_cost=
             continue
 
         heuristic = evaluate_neighbor(
-            get_impassable=graph.is_passable,
+            get_impassable=graph.is_impassable,
             neigh=neigh,
             current_pos=start_pos,
             goal=goal,
@@ -68,8 +68,6 @@ def _astar_recursive_search(graph: Map2D, start_pos, goal, root=None, curr_cost=
 
     parent_cost, optimum_parent = _paths.get(best_parent) or (curr_cost, _root)
     graph.add_to_path(optimum_parent)
-    print(optimum_parent)
-    graph.visualize()
 
     return best_cost, optimum_parent
 
@@ -89,8 +87,10 @@ def main():
     start = (1, 1)
     goal = (9, 0)
 
+    raw_map = map_2()
+
     newmap = (
-        Map2D(diagonals=False)
+        Map2D(raw_map=raw_map, diagonals=False)
         .set_current(start)
         .set_goal(goal)
         .visualize()

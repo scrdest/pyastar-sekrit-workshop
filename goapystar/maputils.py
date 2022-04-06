@@ -292,6 +292,17 @@ class BasePathfindingGraph:
         return passable
 
 
+    def is_impassable(self, pos: float | tuple[float, float], pos_y: None | float = None, *args, **kwargs):
+        passable = not self.is_passable(
+            pos=pos,
+            pos_y=pos_y,
+            *args,
+            **kwargs
+        )
+
+        return passable
+
+
 class Map2D(BasePathfindingGraph):
     def __init__(self, raw_map=None, start_pos=None, diagonals=False):
         super().__init__(
@@ -369,7 +380,7 @@ class Map2D(BasePathfindingGraph):
                 if not _diagonals and abs(x_pos-x) == abs(y_pos-y):
                     continue
 
-                if self.is_passable(curr_pos):
+                if not self.is_passable(curr_pos):
                     continue
 
                 yield curr_pos

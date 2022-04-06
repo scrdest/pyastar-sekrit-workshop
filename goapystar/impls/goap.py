@@ -45,7 +45,8 @@ import typing
 
 from goapystar.reasoning.utils import State
 from goapystar.measures import action_graph_dist, equality_check
-from goapystar.types import StateLike, ActionTuple, ActionKey, IntoState, CandidateTuple, PathTuple, ResultTuple
+from goapystar.types import StateLike, ActionTuple, ActionKey, IntoState, CandidateTuple, PathTuple, ResultTuple, \
+    BlackboardBinOp
 
 
 class EmptyQueueError(Exception):
@@ -60,12 +61,19 @@ PLUS_INF = float("inf")
 BLACKBOARD_CLASS = dict
 
 
-def update_counts(src: dict, new: dict, default=0, op=None):
-    _op = op or operator.add
+def update_counts(
+    src: StateLike,
+    new: StateLike,
+    default: typing.Any = 0,
+    op: typing.Optional[typing.Union[BlackboardBinOp, typing.Dict[ActionKey, BlackboardBinOp]]] = None
+):
+    base_op = op or operator.add
+    op_is_dict = isinstance(op, dict)
 
     for new_key, new_val in new.items():
+        op_for_key = op.get(new_key, base_op) if op_is_dict else base_op
         curr_value = src.get(new_key, default)
-        src[new_key] = _op(curr_value, new_val)
+        src[new_key] = op_for_key(curr_value, new_val)
 
     return src
 
@@ -76,6 +84,8 @@ def evaluate_neighbor(
     current_pos: IntoState,
     goal: StateLike,
     blackboard: typing.Optional[StateLike] = None,
+    blackboard_default: typing.Any = 0,
+    blackboard_update_op: typing.Optional[typing.Union[BlackboardBinOp, typing.Dict[ActionKey, BlackboardBinOp]]] = None,
     measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
     neighbor_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
     goal_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
@@ -93,8 +103,12 @@ def evaluate_neighbor(
 
     if get_effects:
         new_effects = get_effects(neigh)
-        for state_key, state_val in new_effects.items():
-            effects[state_key] = effects.get(state_key, 0) + state_val
+        update_counts(
+            effects,
+            new_effects,
+            default=blackboard_default,
+            op=blackboard_update_op,
+        )
 
     effects["src"] = curr_src
 
@@ -119,7 +133,7 @@ def evaluate_neighbor(
     return heuristic, effects
 
 
-def cached_parse_effects(effects_checker):
+def cached_parse_effects(effects_checker, blackboard_default=0, blackboard_update_op=None):
 
     @functools.lru_cache(10)
     def _check_effects(src_pos):
@@ -127,8 +141,12 @@ def cached_parse_effects(effects_checker):
 
         for trajectory in src_pos:
             traj_eff = effects_checker(trajectory)
-            for (eff_key, eff_val) in traj_eff.items():
-                rebuilt_blackboard[eff_key] = rebuilt_blackboard.get(eff_key, 0) + eff_val
+            update_counts(
+                rebuilt_blackboard,
+                traj_eff,
+                default=blackboard_default,
+                op=blackboard_update_op
+            )
 
         return rebuilt_blackboard
 
@@ -147,6 +165,9 @@ def _astar_deepening_search(
     goal_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
     pqueue_key_func: typing.Optional[typing.Callable[[int, float, float], tuple]] = None,
     blackboard: typing.Optional[StateLike] = None,
+    blackboard_default: typing.Any = 0,
+    blackboard_update_op: typing.Optional[typing.Union[BlackboardBinOp, typing.Dict[ActionKey, BlackboardBinOp]]] = None,
+    visited: typing.Optional[typing.Dict[ActionKey, int]] = None,
     paths: typing.Optional[typing.Dict[ActionKey, PathTuple]] = None,
     queue: typing.Optional[typing.MutableSequence[CandidateTuple]] = None,
     curr_cost: float = 0,
@@ -155,12 +176,16 @@ def _astar_deepening_search(
 
     _paths = paths or dict()
     _pqueue = queue or []
-    _blackboard = blackboard or BLACKBOARD_CLASS()
+    _blackboard = blackboard.copy() if blackboard else BLACKBOARD_CLASS()
     _goal_check = goal_checker or equality_check
 
-
-    if isinstance(start_pos, State):
-        update_counts(_blackboard, start_pos.to_dict())
+    if isinstance(start_pos, (State, dict)):
+        update_counts(
+            _blackboard,
+            start_pos,
+            default=blackboard_default,
+            op=blackboard_update_op
+        )
 
     if _goal_check(_blackboard, goal):
         cost, parent, path = _paths.get(start_pos) or (curr_cost, start_pos, (start_pos,))
@@ -170,9 +195,14 @@ def _astar_deepening_search(
     _neighbor_measure = neighbor_measure or action_graph_dist
     _goal_measure = goal_measure or action_graph_dist
 
+    if visited is not None:
+        visited[start_pos] = visited.get(start_pos, 0) + 1
+
     neighbors = adjacency_gen(start_pos)
 
     for neigh in neighbors:
+        if visited and neigh in visited:
+            continue
 
         heuristic, effects = evaluate_neighbor(
             check_preconds=preconditions_checker,
@@ -182,6 +212,8 @@ def _astar_deepening_search(
             neighbor_measure=_neighbor_measure,
             goal_measure=_goal_measure,
             blackboard=_blackboard,
+            blackboard_default=blackboard_default,
+            blackboard_update_op=blackboard_update_op,
             get_effects=get_effects
         )
 
@@ -220,7 +252,11 @@ def _astar_deepening_search(
 
     cand_cost, cand_pos, src_pos = heapq.heappop(_pqueue)[1:]
 
-    fx_rebuilder = cached_parse_effects(get_effects)
+    fx_rebuilder = cached_parse_effects(
+        get_effects,
+        blackboard_default=blackboard_default,
+        blackboard_update_op=blackboard_update_op
+    )
     stack = tuple(src_pos + [cand_pos])
     cand_fx = fx_rebuilder(stack)
 
@@ -234,12 +270,15 @@ def _astar_deepening_search(
         preconditions_checker=preconditions_checker,
         curr_cost=cand_cost,
         paths=_paths,
+        visited=visited,
         neighbor_measure=_neighbor_measure,
         goal_measure=_goal_measure,
         queue=_pqueue,
         goal_checker=_goal_check,
         get_effects=get_effects,
         blackboard=cand_blackboard,
+        blackboard_default=blackboard_default,
+        blackboard_update_op=blackboard_update_op,
         max_heap_size=max_heap_size,
         _iter=_iter+1
     )
@@ -253,6 +292,7 @@ def solve_astar(
     preconditions_check: typing.Callable[[StateLike], bool],
     handle_backtrack_node: typing.Optional[typing.Callable[[ActionTuple], typing.Any]] = None,
     paths: typing.Optional[typing.Dict[ActionKey, PathTuple]] = None,
+    visited: typing.Optional[typing.Dict[ActionKey, int]] = None,
     neighbor_measure: typing.Callable[[StateLike], bool] = None,
     goal_measure: typing.Callable[[StateLike], bool] = None,
     goal_check: typing.Optional[typing.Callable[[StateLike], bool]] = None,
@@ -260,6 +300,8 @@ def solve_astar(
     cutoff_iter: typing.Optional[int] = 1000,
     max_heap_size: typing.Optional[int] = None,
     pqueue_key_func: typing.Optional[typing.Callable] = None,
+    blackboard_default: typing.Any = None,
+    blackboard_update_op: typing.Optional[typing.Union[BlackboardBinOp, typing.Dict[ActionKey, BlackboardBinOp]]] = None,
 ):
 
     _start_pos = start_pos
@@ -276,12 +318,15 @@ def solve_astar(
         start_pos=_start_pos,
         goal=_goal,
         paths=paths,
+        visited=visited,
         neighbor_measure=neighbor_measure,
         goal_measure=goal_measure,
         goal_checker=goal_check,
         get_effects=get_effects,
         max_heap_size=max_heap_size,
         pqueue_key_func=pqueue_key_func,
+        blackboard_default=blackboard_default,
+        blackboard_update_op=blackboard_update_op,
     )
 
     best_cost, best_parent = None, None

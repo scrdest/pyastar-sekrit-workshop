@@ -1,3 +1,4 @@
+import operator
 import os
 import typing
 
@@ -57,7 +58,7 @@ def neighbor_measure(mapobj: ActionDict) -> typing.Callable:
     return _measurer
 
 
-def goal_checker_for(mapobj: ActionDict) -> typing.Callable:
+def goal_checker_for(mapobj: ActionDict, cmp_op=operator.gt) -> typing.Callable:
     effect_getter = get_effects(mapobj=mapobj)
 
     def _goalchecker(pos: StateLike, goal: StateLike) -> bool:
@@ -68,7 +69,7 @@ def goal_checker_for(mapobj: ActionDict) -> typing.Callable:
             if value is None:
                 continue
 
-            if pos_effects.get(state, 0) < value:
+            if cmp_op(value, pos_effects.get(state, 0)):
                 match = False
                 break
 

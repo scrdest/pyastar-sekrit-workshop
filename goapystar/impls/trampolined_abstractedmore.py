@@ -21,7 +21,7 @@ and stateful nonsense had been quarantined behind callbacks to make things more 
 
 
 import heapq
-from goapystar.maputils import Map2D, evaluate_neighbor
+from goapystar.maputils import Map2D, evaluate_neighbor, map_3
 from goapystar.measures import manhattan_distance, minkowski_distance, obstacle_dist
 
 
@@ -154,11 +154,13 @@ def solve_astar_deepening(
 
 
 def main():
-    start = (35, 35)
-    goal = (1, 35)
+    start = (1, 1)
+    goal = (19, 2)
+
+    raw_map = map_3()
 
     newmap = (
-        Map2D(diagonals=False)
+        Map2D(raw_map=raw_map, diagonals=False)
         .set_current(start)
         .set_goal(goal)
         .visualize()
@@ -168,9 +170,10 @@ def main():
         start_pos=start,
         goal=goal,
         adjacency_gen=newmap.adjacent_lazy,
-        impassability_check=newmap.is_passable,
+        impassability_check=newmap.is_impassable,
         handle_backtrack_node=lambda parent: newmap.add_to_path(parent),
-        measure=obstacle_dist(newmap, manhattan_distance)
+        neighbor_measure=obstacle_dist(newmap, manhattan_distance),
+        goal_measure=obstacle_dist(newmap, manhattan_distance),
     )
 
     print(cost)

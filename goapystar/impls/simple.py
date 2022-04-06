@@ -4,7 +4,7 @@ Basic, for-loopy implementation.
 """
 
 import heapq
-from goapystar.maputils import Map2D, evaluate_neighbor
+from goapystar.maputils import Map2D, evaluate_neighbor, map_2
 from goapystar.measures import minkowski_distance
 
 
@@ -24,7 +24,7 @@ def solve_astar(graph: Map2D, start_pos, goal, paths=None):
                 continue
 
             heuristic = evaluate_neighbor(
-                get_impassable=graph.is_passable,
+                get_impassable=graph.is_impassable,
                 neigh=neigh,
                 current_pos=current_pos,
                 goal=goal,
@@ -65,10 +65,12 @@ def solve_astar(graph: Map2D, start_pos, goal, paths=None):
 
 def main():
     start = (1, 1)
-    goal = (9, 0)
+    goal = (0, 6)
+
+    raw_map = map_2()
 
     newmap = (
-        Map2D(diagonals=False)
+        Map2D(raw_map=raw_map, diagonals=False)
         .set_current(start)
         .set_goal(goal)
         .visualize()
@@ -77,7 +79,7 @@ def main():
     result = solve_astar(
         newmap,
         start_pos=start,
-        goal=goal
+        goal=goal,
     )
 
     newmap.visualize()

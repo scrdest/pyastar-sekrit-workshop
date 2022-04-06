@@ -21,7 +21,7 @@ and stateful nonsense had been quarantined behind callbacks to make things more 
 
 
 import heapq
-from goapystar.maputils import Map2D, evaluate_neighbor
+from goapystar.maputils import Map2D, evaluate_neighbor, map_3
 from goapystar.measures import minkowski_distance
 
 
@@ -104,7 +104,7 @@ def _astar_deepening_search(
 def solve_astar_deepening(graph: Map2D, start_pos, goal, visited=None, paths=None, measure=None):
     continue_search, next_params = True, dict(
         adjacency_gen=graph.adjacent_lazy,
-        impassability_checker=graph.is_passable,
+        impassability_checker=graph.is_impassable,
         parent_callback=lambda parent: graph.add_to_path(parent) and graph.visualize(),
         start_pos=start_pos,
         goal=goal,
@@ -122,7 +122,7 @@ def solve_astar_deepening(graph: Map2D, start_pos, goal, visited=None, paths=Non
 
         except ModuleNotFoundError:
             continue_search, next_params = False, next_params
-        print(next_params)
+
         if continue_search:
             result_paths = next_params["paths"]
         else:
@@ -142,8 +142,10 @@ def main():
     start = (1, 1)
     goal = (19, 2)
 
+    raw_map = map_3()
+
     newmap = (
-        Map2D(diagonals=False)
+        Map2D(raw_map=raw_map, diagonals=False)
         .set_current(start)
         .set_goal(goal)
         .visualize()

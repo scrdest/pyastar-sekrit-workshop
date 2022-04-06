@@ -1,0 +1,38 @@
+{
+    "EditMode": [
+        1,
+        {},
+        {
+            "ReadMode": false,
+            "EditMode": true
+        }
+    ],
+    "ReadMode": [
+        1,
+        {},
+        {
+            "ReadMode": true,
+            "EditMode": false
+        }
+    ],
+    "SetTrue": [
+        1,
+        {
+            "EditMode": true
+        },
+        {
+            "IsTrue": true
+        }
+    ],
+    "SetFalse": [
+        1,
+        {
+            "EditMode": true
+        },
+        {
+            "IsTrue": false
+        }
+    ],
+    "_isState": true,
+    "_stateName": "State"
+}

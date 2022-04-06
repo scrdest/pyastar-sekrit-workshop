@@ -17,7 +17,7 @@ piece of work (evaluating one node), the full search can be chunked up arbitrari
 """
 
 import heapq
-from goapystar.maputils import Map2D, evaluate_neighbor
+from goapystar.maputils import Map2D, evaluate_neighbor, map_2
 from goapystar.measures import minkowski_distance
 
 
@@ -44,7 +44,7 @@ def _astar_deepening_search(graph: Map2D, start_pos, goal, root=None, curr_cost=
             continue
 
         heuristic = evaluate_neighbor(
-            get_impassable=graph.is_passable,
+            get_impassable=graph.is_impassable,
             neigh=neigh,
             current_pos=start_pos,
             goal=goal,
@@ -111,10 +111,11 @@ def solve_astar_deepening(graph: Map2D, start_pos, goal, visited=None, paths=Non
 
 def main():
     start = (1, 1)
-    goal = (9, 2)
+    goal = (3, 6)
+    raw_map = map_2()
 
     newmap = (
-        Map2D(diagonals=False)
+        Map2D(raw_map=raw_map, diagonals=False)
         .set_current(start)
         .set_goal(goal)
         .visualize()

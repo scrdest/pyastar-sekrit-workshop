@@ -34,6 +34,7 @@ class MapJsonDecoder(json.JSONDecoder):
             ]
             for raw_key, raw_row
             in pre_decoded.items()
+            if not raw_key[0] == "_"
         }
         return result
 
