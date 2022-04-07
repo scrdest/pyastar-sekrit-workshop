@@ -1,5 +1,6 @@
 import pytest
-from goapystar.reasoning.reasoning import *
+from examples.reasoning import *
+from goapystar.maputils import load_map_json
 
 
 @pytest.mark.parametrize(("mapname", "maxiters", "maxheap"), (
@@ -8,8 +9,8 @@ from goapystar.reasoning.reasoning import *
     # ("complex_sleepless_workhard", 4500, 2000),  # fails - cycle, I think
 ))
 def test_repeated_multigoal_moneyrest(mapname, maxiters, maxheap):
-    start = State.fromdict({}, name="START")
-    goal = State.fromdict({"Money": 30, "Rested": 5}, name="END")
+    start = {}
+    goal = {"Money": 30, "Rested": 5}
 
     raw_map = load_map_json(mapname)
 
@@ -46,8 +47,8 @@ def test_repeated_multigoal_moneyrest(mapname, maxiters, maxheap):
     ("debug_complex", 4000, 3000),
 ))
 def test_repeated_multigoal_moneyrestdebug(mapname, maxiters, maxheap):
-    start = State.fromdict({}, name="START")
-    goal = State.fromdict({"Money": 20, "Rested": 4, "Debug": 2}, name="END")
+    start = {}
+    goal = {"Money": 20, "Rested": 4, "Debug": 2}
 
     raw_map = load_map_json(mapname)
 
@@ -84,8 +85,8 @@ def test_repeated_multigoal_moneyrestdebug(mapname, maxiters, maxheap):
 ))
 def test_repeated_multigoal_customheuristic(mapname, maxiters, maxheap):
     # This is a deceptively hard problem - doesn't pass without the heuristic!
-    start = State.fromdict({"Money": 200, "HasCleanDishes": 1}, name="START")
-    goal = State.fromdict({"Fed": 3}, name="END")
+    start = {"Money": 200, "HasCleanDishes": 1}
+    goal = {"Fed": 3}
 
     raw_map = load_map_json(mapname)
 
@@ -139,8 +140,8 @@ def test_repeated_multigoal_customheuristic(mapname, maxiters, maxheap):
         ("complex_nodebug_workhard", 300, 5000),
 ))
 def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
-    start = State.fromdict({"HasCleanDishes": 1}, name="START")
-    goal = State.fromdict({"Fed": 1, "Rested": 10, "Money": 10}, name="END")
+    start = {"HasCleanDishes": 1}
+    goal = {"Fed": 1, "Rested": 10, "Money": 10}
 
     raw_map = load_map_json(mapname)
 
@@ -150,7 +151,7 @@ def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
             .set_goal(goal)
     )
 
-    def randomized_cost(start, end):
+    def randomized_cost(*args, **kwargs):
         import random
         return random.randint(-5, 5)
 
@@ -181,8 +182,8 @@ def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
 ))
 def test_repeated_multigoal_randheuristic(mapname, maxiters, maxheap):
     # This is a deceptively hard problem - doesn't pass without the heuristic!
-    start = State.fromdict({"Money": 200, "HasCleanDishes": 1}, name="START")
-    goal = State.fromdict({"Fed": 3}, name="END")
+    start = {"Money": 200, "HasCleanDishes": 1}
+    goal = {"Fed": 3}
 
     raw_map = load_map_json(mapname)
 
@@ -194,7 +195,7 @@ def test_repeated_multigoal_randheuristic(mapname, maxiters, maxheap):
 
     print("")
 
-    def randomized_cost(start, end):
+    def randomized_cost(*args, **kwargs):
         # Oddly, the random-cost heuristic helps here *quite* a bit
         # the other run with dict measure runs consistent 16k+ iterations
         # -15, 15 range has gone as low as 13546 iters *so far*

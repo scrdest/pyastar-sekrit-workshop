@@ -1,5 +1,7 @@
 import pytest
-from goapystar.reasoning.reasoning import *
+from examples.reasoning import *
+from goapystar.maputils import load_map_json
+from goapystar.state import State
 
 
 @pytest.mark.parametrize(("mapname", "maxiters", "maxheap"), (
@@ -216,8 +218,8 @@ def test_fed_found_complex(mapname, maxiters, maxheap):
     ("complex_nodebug", 10, 200),
 ))
 def test_smol_rested_found_complex(mapname, maxiters, maxheap):
-    start = State.fromdict({"HasDirtyDishes": 1}, name="START")
-    goal = State.fromdict({"Rested": 1}, name="END")
+    start = {"HasDirtyDishes": 1}
+    goal = {"Rested": 1}
 
     raw_map = load_map_json(mapname)
 
@@ -254,8 +256,8 @@ def test_smol_rested_found_complex(mapname, maxiters, maxheap):
     ("complex_nodebug", 300, 200),
 ))
 def test_big_rested_found_complex(mapname, maxiters, maxheap):
-    start = State.fromdict({"HasDirtyDishes": 1}, name="START")
-    goal = State.fromdict({"Rested": 10}, name="END")
+    start = {"HasDirtyDishes": 1}
+    goal = {"Rested": 10}
 
     raw_map = load_map_json(mapname)
 
@@ -291,8 +293,8 @@ def test_big_rested_found_complex(mapname, maxiters, maxheap):
     ("debug_complex", 400, 200),
 ))
 def test_multigoal_found_complex_food_dirty(mapname, maxiters, maxheap):
-    start = State.fromdict({"HasDirtyDishes": 1}, name="START")
-    goal = State.fromdict({"Fed": 1, "Debug": 1}, name="END")
+    start = {"HasDirtyDishes": 1}
+    goal = {"Fed": 1, "Debug": 1}
 
     raw_map = load_map_json(mapname)
 
@@ -328,8 +330,8 @@ def test_multigoal_found_complex_food_dirty(mapname, maxiters, maxheap):
     ("debug_complex", 200, 200),
 ))
 def test_multigoal_found_complex_food_clean(mapname, maxiters, maxheap):
-    start = State.fromdict({"HasCleanDishes": 1}, name="START")
-    goal = State.fromdict({"Fed": 1, "Debug": 1}, name="END")
+    start = {"HasCleanDishes": 1}
+    goal = {"Fed": 1, "Debug": 1}
 
     raw_map = load_map_json(mapname)
 
@@ -366,8 +368,8 @@ def test_multigoal_found_complex_food_clean(mapname, maxiters, maxheap):
     ("complex_nodebug", 1000, 200),
 ))
 def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
-    start = State.fromdict({"HasCleanDishes": 1}, name="START")
-    goal = State.fromdict({"Fed": 1, "Money": 1}, name="END")
+    start = {"HasCleanDishes": 1}
+    goal = {"Fed": 1, "Money": 1}
 
     raw_map = load_map_json(mapname)
 
@@ -405,8 +407,8 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
     ("complex_sleepless", 300, 200),
 ))
 def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
-    start = State.fromdict({"HasDirtyDishes": 1}, name="START")
-    goal = State.fromdict({"Fed": 1, "Money": 1}, name="END")
+    start = {"HasDirtyDishes": 1}
+    goal = {"Fed": 1, "Money": 1}
 
     raw_map = load_map_json(mapname)
 
@@ -444,8 +446,8 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
     ("debug_complex", 300, 5000),
 ))
 def test_repeated_goal_debug(mapname, maxiters, maxheap):
-    start = State.fromdict({}, name="START")
-    goal = State.fromdict({"Debug": 5}, name="END")
+    start = {}
+    goal = {"Debug": 5}
 
     raw_map = load_map_json(mapname)
 
@@ -484,8 +486,8 @@ def test_repeated_goal_debug(mapname, maxiters, maxheap):
     ("complex_sleepless_workhard", 1500, 1000),
 ))
 def test_repeated_goal_money(mapname, maxiters, maxheap):
-    start = State.fromdict({}, name="START")
-    goal = State.fromdict({"Money": 50}, name="END")
+    start = {}
+    goal = {"Money": 50}
 
     raw_map = load_map_json(mapname)
 
@@ -523,8 +525,8 @@ def test_repeated_goal_money(mapname, maxiters, maxheap):
     # ("complex_sleepless_workhard", 4500, 2000),  # fails - cycle, I think
 ))
 def test_repeated_multigoal_moneyrest(mapname, maxiters, maxheap):
-    start = State.fromdict({}, name="START")
-    goal = State.fromdict({"Money": 30, "Rested": 5}, name="END")
+    start = {}
+    goal = {"Money": 30, "Rested": 5}
 
     raw_map = load_map_json(mapname)
 
@@ -646,7 +648,7 @@ def test_custom_updateop_maplike(diagonals, maxiters, maxheap):
     start = {"pos": (1, 1)}
     goal = {"pos": (19, 2)}
 
-    from goapystar.maputils import map_3, Map2D
+    from goapystar.map_2d.utils import map_3, Map2D
 
     raw_map = map_3()
 

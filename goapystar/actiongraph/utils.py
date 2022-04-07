@@ -1,21 +1,8 @@
-import os
+import operator
 import typing
 
-from goapystar.maputils import ActionGraph
-from goapystar.impls.goap import cacheable_astar_solver
-from goapystar.measures import no_goal_heuristic
-from goapystar.reasoning.utils import State
-from goapystar.reasoning.maps import load_map_json
+from goapystar.state import State
 from goapystar.types import ActionKey, ActionDict, StateLike
-
-CURR_DIR = os.path.dirname(os.path.abspath(__file__))
-MAPDIR_SUFF = "maps"
-MAPS_DIR = os.path.join(CURR_DIR, MAPDIR_SUFF)
-
-
-def custom_map() -> ActionDict:
-    actionmap = load_map_json("map1")
-    return actionmap
 
 
 def get_actions(mapobj: ActionDict) -> typing.Callable:
@@ -57,7 +44,7 @@ def neighbor_measure(mapobj: ActionDict) -> typing.Callable:
     return _measurer
 
 
-def goal_checker_for(mapobj: ActionDict) -> typing.Callable:
+def goal_checker_for(mapobj: ActionDict, cmp_op=operator.gt) -> typing.Callable:
     effect_getter = get_effects(mapobj=mapobj)
 
     def _goalchecker(pos: StateLike, goal: StateLike) -> bool:
@@ -68,7 +55,7 @@ def goal_checker_for(mapobj: ActionDict) -> typing.Callable:
             if value is None:
                 continue
 
-            if pos_effects.get(state, 0) < value:
+            if cmp_op(value, pos_effects.get(state, 0)):
                 match = False
                 break
 
@@ -96,45 +83,3 @@ def preconds_checker_for(mapobj: ActionDict) -> typing.Callable[[typing.Union[Ac
 
     return _checker
 
-
-def main():
-    start = State.fromdict({"HasDirtyDishes": 1}, name="START")
-    # goal = State.fromdict({"Fed": 1}, name="END")
-    # goal = State.fromdict({"Rested": 10}, name="END")
-    # goal = State.fromdict({"Rested": 10, "Debug": 1}, name="END")
-    # goal = State.fromdict({"Rested": 10}, name="END")
-    # goal = State.fromdict({"Rested": 10, "Debug": 1}, name="END")
-    goal = State.fromdict({"Debug": 1}, name="END")
-
-    raw_map = custom_map()
-
-    newmap = (
-        ActionGraph(raw_map)
-        .set_current(start)
-        .set_goal(goal)
-    )
-
-    solve_astar = cacheable_astar_solver(
-        adjacency_gen=get_actions(raw_map),
-        preconditions_check=preconds_checker_for(raw_map),
-        handle_backtrack_node=newmap.add_to_path,
-        neighbor_measure=neighbor_measure(raw_map),
-        goal_measure=no_goal_heuristic,
-        goal_check=goal_checker_for(raw_map),
-        get_effects=get_effects(raw_map),
-        cutoff_iter=500,
-        max_heap_size=100,
-    )
-
-    cost, path = solve_astar(
-        start_pos=start,
-        goal=goal,
-    )
-
-    print(cost)
-
-    newmap.visualize()
-
-
-if __name__ == '__main__':
-    main()

@@ -1,6 +1,6 @@
 import typing
 
-from goapystar.mapconsts import SLOW
+from goapystar.map_2d.consts import SLOW
 
 
 def manhattan_distance(start: typing.Iterable[float], end: typing.Iterable[float]) -> float:

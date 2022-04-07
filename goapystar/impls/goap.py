@@ -43,7 +43,7 @@ import heapq
 import operator
 import typing
 
-from goapystar.reasoning.utils import State
+from goapystar.state import State
 from goapystar.measures import action_graph_dist, equality_check
 from goapystar.types import StateLike, ActionTuple, ActionKey, IntoState, CandidateTuple, PathTuple, ResultTuple, \
     BlackboardBinOp
@@ -88,7 +88,7 @@ def evaluate_neighbor(
     blackboard_update_op: typing.Optional[typing.Union[BlackboardBinOp, typing.Dict[ActionKey, BlackboardBinOp]]] = None,
     measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
     neighbor_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
-    goal_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
+    goal_measure: typing.Optional[typing.Callable[[IntoState], float]] = None,
     get_effects: typing.Optional[typing.Callable[[ActionKey], StateLike]] = None,
 ):
     _neighbor_measure = neighbor_measure or measure or action_graph_dist
@@ -162,7 +162,7 @@ def _astar_deepening_search(
     goal_checker: typing.Optional[typing.Callable[[StateLike], bool]] = None,
     get_effects: typing.Optional[typing.Callable[[StateLike], float]] = None,
     neighbor_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
-    goal_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
+    goal_measure: typing.Optional[typing.Callable[[IntoState], float]] = None,
     pqueue_key_func: typing.Optional[typing.Callable[[int, float, float], tuple]] = None,
     blackboard: typing.Optional[StateLike] = None,
     blackboard_default: typing.Any = 0,
@@ -293,8 +293,8 @@ def solve_astar(
     handle_backtrack_node: typing.Optional[typing.Callable[[ActionTuple], typing.Any]] = None,
     paths: typing.Optional[typing.Dict[ActionKey, PathTuple]] = None,
     visited: typing.Optional[typing.Dict[ActionKey, int]] = None,
-    neighbor_measure: typing.Callable[[StateLike], bool] = None,
-    goal_measure: typing.Callable[[StateLike], bool] = None,
+    neighbor_measure: typing.Optional[typing.Callable[[StateLike], bool]] = None,
+    goal_measure: typing.Optional[typing.Callable[[IntoState], float]] = None,
     goal_check: typing.Optional[typing.Callable[[StateLike], bool]] = None,
     get_effects: typing.Optional[typing.Callable[[StateLike], float]] = None,
     cutoff_iter: typing.Optional[int] = 1000,
@@ -383,8 +383,8 @@ def cacheable_astar_solver(
     adjacency_gen: typing.Callable[[StateLike], typing.Iterable[ActionTuple]],
     preconditions_check: typing.Callable[[StateLike], bool],
     handle_backtrack_node: typing.Optional[typing.Callable[[ActionTuple], typing.Any]] = None,
-    neighbor_measure: typing.Callable[[StateLike], bool] = None,
-    goal_measure: typing.Callable[[StateLike], bool] = None,
+    neighbor_measure: typing.Optional[typing.Callable[[StateLike], bool]] = None,
+    goal_measure: typing.Optional[typing.Callable[[IntoState], float]] = None,
     goal_check: typing.Optional[typing.Callable[[StateLike], bool]] = None,
     get_effects: typing.Optional[typing.Callable[[StateLike], float]] = None,
     cutoff_iter: typing.Optional[int] = 1000,
@@ -461,8 +461,8 @@ class BaseGOAP(abc.ABC):
         adjacency_gen: typing.Optional[typing.Callable[[StateLike], typing.Iterable[ActionTuple]]] = None,
         preconditions_check: typing.Optional[typing.Callable[[StateLike], bool]] = None,
         handle_backtrack_node: typing.Optional[typing.Callable[[ActionTuple], typing.Any]] = None,
-        neighbor_measure: typing.Callable[[StateLike], bool] = None,
-        goal_measure: typing.Callable[[StateLike], bool] = None,
+        neighbor_measure: typing.Optional[typing.Callable[[StateLike], bool]] = None,
+        goal_measure: typing.Optional[typing.Callable[[IntoState], float]] = None,
         goal_check: typing.Optional[typing.Callable[[StateLike], bool]] = None,
         get_effects: typing.Optional[typing.Callable[[StateLike], float]] = None,
         cutoff_iter: typing.Optional[int] = None,
@@ -583,7 +583,7 @@ class BaseGOAP(abc.ABC):
 
         if self.handle_backtrack_node:
             for parent_elem in path:
-                self.handle_backtrack_node(self, parent_elem)
+                self.handle_backtrack_node(parent_elem)
 
         return best_cost, path
 

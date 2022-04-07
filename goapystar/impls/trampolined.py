@@ -17,7 +17,7 @@ piece of work (evaluating one node), the full search can be chunked up arbitrari
 """
 
 import heapq
-from goapystar.maputils import Map2D, evaluate_neighbor, map_2
+from goapystar.map_2d.utils import Map2D, evaluate_neighbor, map_2
 from goapystar.measures import minkowski_distance
 
 

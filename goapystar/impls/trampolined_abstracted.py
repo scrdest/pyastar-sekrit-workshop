@@ -21,7 +21,7 @@ and stateful nonsense had been quarantined behind callbacks to make things more 
 
 
 import heapq
-from goapystar.maputils import Map2D, evaluate_neighbor, map_3
+from goapystar.map_2d.utils import Map2D, evaluate_neighbor, map_3
 from goapystar.measures import minkowski_distance
 
 

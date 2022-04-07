@@ -5,7 +5,7 @@ More cacheable in principle, but will stack-overflow on larger maps.
 """
 
 import heapq
-from goapystar.maputils import Map2D, evaluate_neighbor, map_2
+from goapystar.map_2d.utils import Map2D, evaluate_neighbor, map_2
 from goapystar.measures import minkowski_distance
 
 

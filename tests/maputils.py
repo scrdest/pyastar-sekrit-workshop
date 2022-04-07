@@ -1,4 +1,4 @@
-from goapystar import maputils
+from goapystar.map_2d import utils as maputils
 
 
 def test_action_graph_simple_pos_get():
