@@ -85,7 +85,7 @@ def preconds_checker_for(mapobj: ActionDict) -> typing.Callable[[typing.Union[Ac
     def _checker(action, blackboard):
         match = True
 
-        act_preconds = preconds_fetcher(action) if isinstance(action, (str, ActionKey)) else action
+        act_preconds = preconds_fetcher(action) if isinstance(action, str) else action
 
         for state, value in act_preconds.items():
             if blackboard.get(state, 0) < value:

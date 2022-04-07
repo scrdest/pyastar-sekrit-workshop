@@ -300,7 +300,7 @@ def solve_astar(
     cutoff_iter: typing.Optional[int] = 1000,
     max_heap_size: typing.Optional[int] = None,
     pqueue_key_func: typing.Optional[typing.Callable] = None,
-    blackboard_default: typing.Any = None,
+    blackboard_default: typing.Any = 0,
     blackboard_update_op: typing.Optional[typing.Union[BlackboardBinOp, typing.Dict[ActionKey, BlackboardBinOp]]] = None,
 ):
 
@@ -390,6 +390,8 @@ def cacheable_astar_solver(
     cutoff_iter: typing.Optional[int] = 1000,
     max_heap_size: typing.Optional[int] = None,
     pqueue_key_func: typing.Optional[typing.Callable] = None,
+    blackboard_default: typing.Any = 0,
+    blackboard_update_op: typing.Optional[typing.Union[BlackboardBinOp, typing.Dict[ActionKey, BlackboardBinOp]]] = None,
 ):
 
     def cacheable_solve_astar(
@@ -418,6 +420,8 @@ def cacheable_astar_solver(
             get_effects=get_effects,
             max_heap_size=max_heap_size,
             pqueue_key_func=pqueue_key_func,
+            blackboard_default=blackboard_default,
+            blackboard_update_op=blackboard_update_op,
         )
 
         best_cost, best_parent = None, None
@@ -450,6 +454,7 @@ def cacheable_astar_solver(
 class BaseGOAP(abc.ABC):
     cutoff_iter = 1000
     max_heap_size = None
+    blackboard_default = 0
 
     def __init__(
         self,
@@ -463,19 +468,23 @@ class BaseGOAP(abc.ABC):
         cutoff_iter: typing.Optional[int] = None,
         max_heap_size: typing.Optional[int] = None,
         pqueue_key_func: typing.Optional[typing.Callable] = None,
+        blackboard_default: typing.Any = None,
+        blackboard_update_op: typing.Optional[typing.Union[BlackboardBinOp, typing.Dict[ActionKey, BlackboardBinOp]]] = None,
         *args,
         **kwargs,
     ):
         # All configuration options can be overridden at init if so desired.
-        self.adjacency_gen = adjacency_gen or self.__class__.adjacency_gen
-        self.preconditions_check = preconditions_check or self.__class__.preconditions_check
-        self.handle_backtrack_node = handle_backtrack_node or self.__class__.handle_backtrack_node
-        self.neighbor_measure = neighbor_measure or self.__class__.neighbor_measure
-        self.goal_measure = goal_measure or self.__class__.goal_measure
-        self.goal_check = goal_check or self.__class__.goal_check
-        self.get_effects = get_effects or self.__class__.get_effects
-        self.cutoff_iter = cutoff_iter or self.__class__.cutoff_iter
-        self.max_heap_size = max_heap_size or self.__class__.max_heap_size
+        self.adjacency_gen = adjacency_gen or self.adjacency_gen
+        self.preconditions_check = preconditions_check or self.preconditions_check
+        self.handle_backtrack_node = handle_backtrack_node or self.handle_backtrack_node
+        self.neighbor_measure = neighbor_measure or self.neighbor_measure
+        self.goal_measure = goal_measure or self.goal_measure
+        self.goal_check = goal_check or self.goal_check
+        self.get_effects = get_effects or self.get_effects
+        self.cutoff_iter = cutoff_iter or self.cutoff_iter
+        self.max_heap_size = max_heap_size or self.max_heap_size
+        self.blackboard_default = blackboard_default or None
+        self.blackboard_update_op = blackboard_update_op or None
         self.pqueue_key_func = pqueue_key_func or None
 
 
@@ -540,15 +549,15 @@ class BaseGOAP(abc.ABC):
 
 
         continue_search, next_params = True, dict(
-            adjacency_gen=self.partial_with_self(self.adjacency_gen),
-            preconditions_checker=self.partial_with_self(self.preconditions_check),
+            adjacency_gen=self.adjacency_gen,
+            preconditions_checker=self.preconditions_check,
             start_pos=_start_pos,
             goal=_goal,
             paths=paths,
-            neighbor_measure=self.partial_with_self(self.neighbor_measure),
-            goal_measure=self.partial_with_self(self.goal_measure),
-            goal_checker=self.partial_with_self(self.goal_check),
-            get_effects=self.partial_with_self(self.get_effects),
+            neighbor_measure=self.neighbor_measure,
+            goal_measure=self.goal_measure,
+            goal_checker=self.goal_check,
+            get_effects=self.get_effects,
             max_heap_size=self.max_heap_size,
             pqueue_key_func=self.pqueue_key_func,
         )

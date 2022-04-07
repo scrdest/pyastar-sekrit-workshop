@@ -122,6 +122,7 @@ def main():
         get_effects=get_effects(raw_map),
         cutoff_iter=500,
         max_heap_size=100,
+        blackboard_default=0,
     )
 
     print(cost)
