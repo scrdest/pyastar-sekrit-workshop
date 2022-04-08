@@ -1,6 +1,6 @@
 import typing
 
-from goapystar.impls.goap import BaseGOAP
+from goapystar.impls.oop import BaseGOAP
 from goapystar.measures import no_goal_heuristic
 from goapystar.types import StateLike, IntoState, ActionKey
 from goapystar.usecases.actiongraph.utils import get_actions, preconds_checker_for, neighbor_measure, goal_checker_for, \

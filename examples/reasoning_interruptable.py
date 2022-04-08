@@ -1,5 +1,6 @@
 from goapystar.maputils import load_map_json
-from goapystar.impls.cacheable import cacheable_solver
+
+from goapystar.impls.interruptable import find_plan
 from goapystar.usecases.actions import (
     get_actions,
     get_effects,
@@ -8,15 +9,18 @@ from goapystar.usecases.actions import (
     goal_checker_for
 )
 from goapystar.usecases.actiongraph.actiongraph import ActionGraph
-from goapystar.state import State
 from goapystar.measures import no_goal_heuristic
 
 
-def main():
-    start = State.fromdict({"HasDirtyDishes": 1}, name="START")
-    goal = State.fromdict({"Rested": 10, "Debug": 1}, name="END")
+def custom_map():
+    return load_map_json("map1")
 
-    raw_map = load_map_json("map1")
+
+def main():
+    start = {"HasDirtyDishes": 1}
+    goal = {"Debug": 1}
+
+    raw_map = custom_map()
 
     newmap = (
         ActionGraph(raw_map)
@@ -24,7 +28,9 @@ def main():
         .set_goal(goal)
     )
 
-    find_plan = cacheable_solver(
+    cost, path = find_plan(
+        start_pos=start,
+        goal=goal,
         adjacency_gen=get_actions(raw_map),
         preconditions_check=preconds_checker_for(raw_map),
         handle_backtrack_node=newmap.add_to_path,
@@ -34,11 +40,7 @@ def main():
         get_effects=get_effects(raw_map),
         cutoff_iter=500,
         max_queue_size=100,
-    )
-
-    cost, path = find_plan(
-        start_pos=start,
-        goal=goal,
+        blackboard_default=0,
     )
 
     print(cost)

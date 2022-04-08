@@ -21,7 +21,7 @@ def test_repeated_multigoal_moneyrest(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -59,7 +59,7 @@ def test_repeated_multigoal_moneyrestdebug(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -113,7 +113,7 @@ def test_repeated_multigoal_customheuristic(mapname, maxiters, maxheap):
 
     print("")
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -156,7 +156,7 @@ def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
         import random
         return random.randint(-5, 5)
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -205,7 +205,7 @@ def test_repeated_multigoal_randheuristic(mapname, maxiters, maxheap):
         import random
         return random.randint(-30, 30)
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),

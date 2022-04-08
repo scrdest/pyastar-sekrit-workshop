@@ -24,13 +24,13 @@ def test_debug_startisend(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -64,13 +64,13 @@ def test_debug_found_simple(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -101,13 +101,13 @@ def test_debug_found_problematic(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -139,13 +139,13 @@ def test_fed_found_simple(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -178,13 +178,13 @@ def test_fed_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -215,13 +215,13 @@ def test_smol_rested_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -250,13 +250,13 @@ def test_big_rested_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -284,13 +284,13 @@ def test_multigoal_found_complex_food_dirty(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -318,13 +318,13 @@ def test_multigoal_found_complex_food_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -353,13 +353,13 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -389,13 +389,13 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -425,13 +425,13 @@ def test_repeated_goal_debug(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -462,7 +462,7 @@ def test_repeated_goal_money(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
@@ -470,7 +470,7 @@ def test_repeated_goal_money(mapname, maxiters, maxheap):
 
     import functools
 
-    cached_solver = functools.lru_cache(maxsize=10)(solve_astar)
+    cached_solver = functools.lru_cache(maxsize=10)(find_plan)
 
     cost, path = cached_solver(
         start_pos=start,
@@ -509,13 +509,13 @@ def test_repeated_multigoal_moneyrest(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )
@@ -545,13 +545,13 @@ def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = FancyActionGraphGOAP(
+    find_plan = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
         max_queue_size=maxheap
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
     )

@@ -1,6 +1,6 @@
 from goapystar.maputils import load_map_json
 
-from goapystar.impls.goap import solve_astar
+from goapystar.impls.goap import find_plan
 from goapystar.usecases.actions import (
     get_actions,
     get_effects,
@@ -28,7 +28,7 @@ def main():
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),

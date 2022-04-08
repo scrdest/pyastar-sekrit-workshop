@@ -24,7 +24,7 @@ def test_debug_startisend(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -67,7 +67,7 @@ def test_debug_found_simple(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -107,7 +107,7 @@ def test_debug_found_problematic(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -148,7 +148,7 @@ def test_fed_found_simple(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -190,7 +190,7 @@ def test_fed_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -230,7 +230,7 @@ def test_smol_rested_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -268,7 +268,7 @@ def test_big_rested_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -305,7 +305,7 @@ def test_multigoal_found_complex_food_dirty(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -342,7 +342,7 @@ def test_multigoal_found_complex_food_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -380,7 +380,7 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -419,7 +419,7 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -458,7 +458,7 @@ def test_repeated_goal_debug(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -498,7 +498,7 @@ def test_repeated_goal_money(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -537,7 +537,7 @@ def test_repeated_multigoal_moneyrest(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -576,7 +576,7 @@ def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -617,7 +617,7 @@ def test_custom_updateop_modes(mapname, maxiters, maxheap):
         result = new_val
         return result
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=get_actions(raw_map),
@@ -685,7 +685,7 @@ def test_custom_updateop_maplike(diagonals, maxiters, maxheap):
         result = newmap.is_passable(curr_pos)
         return result
 
-    cost, path = solve_astar(
+    cost, path = find_plan(
         start_pos=start,
         goal=goal,
         adjacency_gen=adjacents,
