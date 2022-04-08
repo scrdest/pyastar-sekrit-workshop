@@ -1,5 +1,6 @@
 import pytest
 from examples.reasoning import *
+from goapystar.usecases.actiongraph.actiongraph import ActionGraph
 from goapystar.maputils import load_map_json
 
 
@@ -31,7 +32,7 @@ def test_repeated_multigoal_moneyrest(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -69,7 +70,7 @@ def test_repeated_multigoal_moneyrestdebug(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -96,11 +97,11 @@ def test_repeated_multigoal_customheuristic(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    def dict_measure(start, end):
-        start_vals = get_effects(raw_map)(start) if isinstance(start, str) else start
+    def dict_measure(start_, end_):
+        start_vals = get_effects(raw_map)(start_) if isinstance(start_, str) else start_
         score = 0
 
-        for end_key, end_val in end.items():
+        for end_key, end_val in end_.items():
             if end_key not in start_vals.keys():
                 score += max(10, end_val ** 4)
 
@@ -123,7 +124,7 @@ def test_repeated_multigoal_customheuristic(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
         # Oddly, the custom key format seems to be required ON TOP of the heuristic to finish reasonably fast
         pqueue_key_func=lambda it, co, he: (he, it)
     )
@@ -166,7 +167,7 @@ def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -215,7 +216,7 @@ def test_repeated_multigoal_randheuristic(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("COST:", cost)

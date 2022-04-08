@@ -29,8 +29,8 @@ from examples import reasoning
     )
 )
 def test_preconds(action, blackboard, expected):
-    map = reasoning.custom_map()
-    prec_checker = reasoning.preconds_checker_for(map)
+    test_map = reasoning.custom_map()
+    prec_checker = reasoning.preconds_checker_for(test_map)
     result = prec_checker(action, blackboard)
     assert result is expected
 

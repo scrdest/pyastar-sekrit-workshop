@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "GoapyStar"
 version = "0.1.0"
-description = "GOAP AI for Python - serious, flexible and modern."
+description = "GOAP AI for Python - lightweight, powerful and flexible."
 authors = ["Jan Malek <jan.malek@gmail.com>"]
-keywords = ["AI", "A*", "Astar", "Pathfinding"]
+keywords = ["AI", "A*", "Astar", "Pathfinding", "Planning"]
 
 [tool.poetry.dependencies]
 python = "^3.9"

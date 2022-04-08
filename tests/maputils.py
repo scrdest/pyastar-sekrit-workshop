@@ -1,9 +1,10 @@
-from goapystar.map_2d import utils as maputils
+import goapystar.usecases.actiongraph.actiongraph
+import goapystar.usecases.actiongraph.utils
 
 
 def test_action_graph_simple_pos_get():
-    testmap = maputils.reasoning_map()
-    graph = maputils.ActionGraph(raw_map=testmap)
+    testmap = goapystar.usecases.actiongraph.utils.reasoning_map()
+    graph = goapystar.usecases.actiongraph.actiongraph.ActionGraph(raw_map=testmap)
     position = graph["1"]
     assert position == {
         '2': 1,
@@ -12,8 +13,8 @@ def test_action_graph_simple_pos_get():
 
 
 def test_action_graph_compound_pos_get():
-    testmap = maputils.reasoning_map()
-    graph = maputils.ActionGraph(raw_map=testmap)
+    testmap = goapystar.usecases.actiongraph.utils.reasoning_map()
+    graph = goapystar.usecases.actiongraph.actiongraph.ActionGraph(raw_map=testmap)
     position = graph["1,2"]
     assert position == {
         '1': 1,
@@ -22,14 +23,14 @@ def test_action_graph_compound_pos_get():
 
 
 def test_action_graph_adjacent_lazy():
-    testmap = maputils.reasoning_map()
-    graph = maputils.ActionGraph(raw_map=testmap)
+    testmap = goapystar.usecases.actiongraph.utils.reasoning_map()
+    graph = goapystar.usecases.actiongraph.actiongraph.ActionGraph(raw_map=testmap)
     result = tuple(graph.adjacent_lazy("1"))
     assert result == ('2', '3')
 
 
 def test_action_graph_adjacent():
-    testmap = maputils.reasoning_map()
-    graph = maputils.ActionGraph(raw_map=testmap)
+    testmap = goapystar.usecases.actiongraph.utils.reasoning_map()
+    graph = goapystar.usecases.actiongraph.actiongraph.ActionGraph(raw_map=testmap)
     result = graph.adjacent("1")
     assert result == {'2', '3'}

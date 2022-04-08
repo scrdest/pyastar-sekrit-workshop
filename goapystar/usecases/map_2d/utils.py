@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import abc
 import functools
 import typing
 
-from goapystar.map_2d.consts import WALL, OPEN, PATH, GOAL, CURR, SLOW
+from goapystar.usecases.actiongraph.utils import BasePathfindingGraph
+from goapystar.usecases.map_2d.consts import WALL, OPEN, PATH, GOAL, CURR, SLOW
 from goapystar.measures import manhattan_distance
 
 
@@ -86,142 +86,6 @@ def map_4():
         [WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL]
     ]
     return newmap
-
-
-
-def reasoning_map():
-    Nodename = str
-    Distance = typing.Union[int, float]
-
-    action_map: dict[Nodename, dict[Nodename, Distance]] = {
-        "1": {"2": 1, "3": 3},
-        "2": {"3": 1, "1": 1},
-        "3": {"4": 2, "5": 2, "6": 20},
-        "4": {"2": 1, "5": 4},
-        "5": {"6": 20, "1": 3},
-    }
-    return action_map
-
-
-class BasePathfindingGraph:
-    def __init__(self, raw_map=None, start_pos=None, *args, **kwargs):
-        self.map = raw_map
-        self.current_pos = start_pos
-        self.current_goal = None
-        self.path = list()
-
-
-    def __contains__(self, item: tuple):
-        lens = self.map
-        for dim in item[::-1]:
-            if dim < 0:
-                return False
-
-            if dim >= len(lens):
-                return False
-
-            lens = lens[dim]
-        return True
-
-
-    def __iter__(self):
-        return iter(self.map)
-
-
-    @abc.abstractmethod
-    def __getitem__(self, item):
-        return
-
-
-    @abc.abstractmethod
-    def __setitem__(self, key, value):
-        return
-
-    @abc.abstractmethod
-    def adjacent_lazy(
-        self,
-        pos,
-        *args,
-        **kwargs
-    ):
-        yield None
-
-
-    @abc.abstractmethod
-    def adjacent(
-        self,
-        pos,
-        *args,
-        **kwargs
-    ) -> typing.Iterable:
-
-        return set(self.adjacent_lazy(pos=pos, *args, **kwargs))
-
-
-    @abc.abstractmethod
-    def set_current(
-        self,
-        pos,
-        *args,
-        **kwargs
-    ) -> BasePathfindingGraph:
-
-        return self
-
-
-    @abc.abstractmethod
-    def set_goal(
-        self,
-        pos,
-        *args,
-        **kwargs
-    ) -> BasePathfindingGraph:
-
-        return self
-
-
-    @abc.abstractmethod
-    def add_to_path(
-        self,
-        pos,
-        *args,
-        **kwargs
-    ) -> BasePathfindingGraph:
-
-        return self
-
-
-    @abc.abstractmethod
-    def visualize(self) -> BasePathfindingGraph:
-        return self
-
-    def is_passable(
-        self,
-        pos: float | tuple[float, float],
-        pos_y: None | float = None,
-        *args,
-        **kwargs
-    ):
-
-        if pos_y is not None:
-            _pos = (pos, pos_y)
-        else:
-            _pos = pos
-
-        passable = True
-
-        return passable
-
-
-    def is_impassable(self, pos: float | tuple[float, float], pos_y: None | float = None, *args, **kwargs):
-        passable = not self.is_passable(
-            pos=pos,
-            pos_y=pos_y,
-            *args,
-            **kwargs
-        )
-
-        return passable
 
 
 class Map2D(BasePathfindingGraph):
@@ -407,72 +271,6 @@ class Map2D(BasePathfindingGraph):
         return passable
 
 
-class ActionGraph(BasePathfindingGraph):
-    def __init__(self, raw_map=None, start_pos=None):
-        super().__init__(
-            raw_map=raw_map or reasoning_map(),
-            start_pos=start_pos
-        )
-
-
-    def __getitem__(self, item):
-        raw_path = item.split(",")
-        path_iter = iter(raw_path)
-        focus = self.map
-        curr = NotImplemented
-        while curr:
-            curr = next(path_iter, None)
-            if curr:
-                focus = focus[curr]
-
-        return focus
-
-
-    def __setitem__(self, key, value):
-        path = key.split(",")
-        focus = self.map
-        curr = NotImplemented
-        while curr:
-            curr = next(path, None)
-            focus = focus[curr]
-        else:
-            focus[key] = value
-        return
-
-
-    def adjacent_lazy(self, pos, *args, **kwargs):
-        focus = self.map
-        adjacents = (k for k in focus.get(pos) or set())
-        return adjacents
-
-
-    def adjacent(self, pos, *args, **kwargs) -> typing.Iterable:
-        adjacents = set(self.adjacent_lazy(pos, *args, **kwargs))
-        return adjacents
-
-
-    def set_goal(self, pos, *args, **kwargs) -> BasePathfindingGraph:
-        self.current_goal = pos
-        return self
-
-
-    def set_current(self, pos, *args, **kwargs) -> BasePathfindingGraph:
-        self.current_pos = pos
-        return self
-
-
-    def add_to_path(self, pos, *args, **kwargs) -> BasePathfindingGraph:
-        self.path.append(pos)
-        return self
-
-
-    def visualize(self) -> BasePathfindingGraph:
-        stored_path = self.path.copy()
-        str_path = " => ".join((*map(str, stored_path), str(self.current_goal)))
-        print(str_path)
-        return self
-
-
 def evaluate_neighbor(get_impassable, neigh, current_pos, goal, measure=None, neighbor_measure=None, goal_measure=None):
     _neighbor_measure = neighbor_measure or measure or manhattan_distance
     _goal_measure = goal_measure or measure or manhattan_distance
@@ -497,8 +295,6 @@ def evaluate_neighbor(get_impassable, neigh, current_pos, goal, measure=None, ne
         neigh_distance,
         goal_distance
     ))
-
-    # print(f"{current_pos}->{neigh} with cost {heuristic} ({neigh_distance}+{goal_distance})")
 
     return heuristic
 

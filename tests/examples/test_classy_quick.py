@@ -1,5 +1,6 @@
 import pytest
-from examples.reasoning_classy import *
+from goapystar.usecases.actiongraph.goap import FancyActionGraphGOAP
+from goapystar.usecases.actiongraph.actiongraph import ActionGraph
 from goapystar.maputils import load_map_json
 from goapystar.state import State
 
@@ -23,10 +24,10 @@ def test_debug_startisend(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -63,10 +64,10 @@ def test_debug_found_simple(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -100,10 +101,10 @@ def test_debug_found_problematic(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -138,10 +139,10 @@ def test_fed_found_simple(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -177,10 +178,10 @@ def test_fed_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -214,10 +215,10 @@ def test_smol_rested_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -249,10 +250,10 @@ def test_big_rested_found_complex(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -283,10 +284,10 @@ def test_multigoal_found_complex_food_dirty(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -317,10 +318,10 @@ def test_multigoal_found_complex_food_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -352,10 +353,10 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -388,10 +389,10 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -424,10 +425,10 @@ def test_repeated_goal_debug(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -461,10 +462,10 @@ def test_repeated_goal_money(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     import functools
@@ -508,10 +509,10 @@ def test_repeated_multigoal_moneyrest(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(
@@ -544,10 +545,10 @@ def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
         .set_goal(goal)
     )
 
-    solve_astar = ReasoningGOAP(
+    solve_astar = FancyActionGraphGOAP(
         mapobj=newmap,
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     cost, path = solve_astar(

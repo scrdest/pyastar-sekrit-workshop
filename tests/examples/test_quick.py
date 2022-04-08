@@ -1,5 +1,6 @@
 import pytest
 from examples.reasoning import *
+from goapystar.usecases.actiongraph.actiongraph import ActionGraph
 from goapystar.maputils import load_map_json
 from goapystar.state import State
 
@@ -34,7 +35,7 @@ def test_debug_startisend(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap
+        max_queue_size=maxheap
     )
 
     print("")
@@ -77,7 +78,7 @@ def test_debug_found_simple(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -117,7 +118,7 @@ def test_debug_found_problematic(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -158,7 +159,7 @@ def test_fed_found_simple(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -200,7 +201,7 @@ def test_fed_found_complex(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -240,7 +241,7 @@ def test_smol_rested_found_complex(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -278,7 +279,7 @@ def test_big_rested_found_complex(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -315,7 +316,7 @@ def test_multigoal_found_complex_food_dirty(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -352,7 +353,7 @@ def test_multigoal_found_complex_food_clean(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -390,7 +391,7 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -429,7 +430,7 @@ def test_multigoal_found_complex_foodmoney_clean(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -468,7 +469,7 @@ def test_repeated_goal_debug(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -508,7 +509,7 @@ def test_repeated_goal_money(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -547,7 +548,7 @@ def test_repeated_multigoal_moneyrest(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -586,7 +587,7 @@ def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
     )
 
     print("")
@@ -627,7 +628,7 @@ def test_custom_updateop_modes(mapname, maxiters, maxheap):
         goal_check=goal_checker_for(raw_map, cmp_op=lambda x, y: x != y),
         get_effects=get_effects(raw_map),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
         blackboard_update_op=custom_bin_op,
         blackboard_default=0,
     )
@@ -648,7 +649,7 @@ def test_custom_updateop_maplike(diagonals, maxiters, maxheap):
     start = {"pos": (1, 1)}
     goal = {"pos": (19, 2)}
 
-    from goapystar.map_2d.utils import map_3, Map2D
+    from goapystar.usecases.map_2d.utils import map_3, Map2D
 
     raw_map = map_3()
 
@@ -696,7 +697,7 @@ def test_custom_updateop_maplike(diagonals, maxiters, maxheap):
         get_effects=new_pos,
         visited=dict(),
         cutoff_iter=maxiters,
-        max_heap_size=maxheap,
+        max_queue_size=maxheap,
         blackboard_update_op=custom_bin_op,
         blackboard_default=0,
         pqueue_key_func=lambda _iter, curr_cost, heuristic: (1,)

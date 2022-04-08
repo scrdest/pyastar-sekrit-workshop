@@ -1,14 +1,14 @@
 from goapystar.maputils import load_map_json
 from goapystar.impls.goap import cacheable_astar_solver
-from goapystar.actiongraph.utils import (
+from goapystar.usecases.actions import (
     get_actions,
     get_effects,
     neighbor_measure,
     preconds_checker_for,
     goal_checker_for
 )
+from goapystar.usecases.actiongraph.actiongraph import ActionGraph
 from goapystar.state import State
-from goapystar.map_2d.utils import ActionGraph
 from goapystar.measures import no_goal_heuristic
 
 
@@ -33,7 +33,7 @@ def main():
         goal_check=goal_checker_for(raw_map),
         get_effects=get_effects(raw_map),
         cutoff_iter=500,
-        max_heap_size=100,
+        max_queue_size=100,
     )
 
     cost, path = solve_astar(
