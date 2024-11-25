@@ -180,10 +180,11 @@ def test_repeated_multigoal_foodrestmoney(mapname, maxiters, maxheap):
     assert path
 
 
-@pytest.mark.parametrize(("mapname", "maxiters", "maxheap"), (
-    ("complex_nodebug_ezwash", 17000, 5000),
+@pytest.mark.parametrize(("mapname", "maxiters", "maxheap", "seed"), (
+    ("complex_nodebug_ezwash", 17000, 5000, 1),
+    ("complex_nodebug_ezwash", 17000, 5000, 2),
 ))
-def test_repeated_multigoal_randheuristic(mapname, maxiters, maxheap):
+def test_repeated_multigoal_randheuristic(mapname, maxiters, maxheap, seed):
     # This is a deceptively hard problem - doesn't pass without the heuristic!
     start = {"Money": 200, "HasCleanDishes": 1}
     goal = {"Fed": 3}
@@ -198,13 +199,15 @@ def test_repeated_multigoal_randheuristic(mapname, maxiters, maxheap):
 
     print("")
 
+    import random
+    random.seed(seed)
+
     def randomized_cost(*args, **kwargs):
         # Oddly, the random-cost heuristic helps here *quite* a bit
         # the other run with dict measure runs consistent 16k+ iterations
         # -15, 15 range has gone as low as 13546 iters *so far*
         # -20, 20 range has gone as low as 12507 iters *so far*
         # -30, 30 range has gone as low as 11626 iters *so far*
-        import random
         return random.randint(-30, 30)
 
     cost, path = find_plan(

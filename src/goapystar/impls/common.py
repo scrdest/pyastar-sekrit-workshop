@@ -5,7 +5,7 @@ import operator
 import typing
 
 from ..measures import action_graph_dist, equality_check
-from ..state import State
+from ..state import State, statehash
 from ..types import StateLike, BlackboardBinOp, ActionKey, IntoState, PathTuple, CandidateTuple
 
 
@@ -50,6 +50,7 @@ def evaluate_neighbor(
     neighbor_measure: typing.Optional[typing.Callable[[StateLike], float]] = None,
     goal_measure: typing.Optional[typing.Callable[[IntoState], float]] = None,
     get_effects: typing.Optional[typing.Callable[[ActionKey], StateLike]] = None,
+    transposition_table: typing.Optional[set] = None,
 ):
     _neighbor_measure = neighbor_measure or measure or action_graph_dist
     _goal_measure = goal_measure or measure or action_graph_dist
@@ -70,10 +71,19 @@ def evaluate_neighbor(
             op=blackboard_update_op,
         )
 
+    if transposition_table:
+        fx_hash = statehash(effects)
+
+        if fx_hash in transposition_table:
+            # Duplicate of an existing state, you get nothing, good day sir!
+            return
+
+        transposition_table.add(fx_hash)
+
     effects["src"] = curr_src
 
     if not valid:
-        return PLUS_INF, effects
+        return
 
     neigh_distance = _neighbor_measure(
         current_pos,
@@ -131,6 +141,7 @@ def _astar_deepening_search(
     paths: typing.Optional[typing.Dict[ActionKey, PathTuple]] = None,
     queue: typing.Optional[typing.MutableSequence[CandidateTuple]] = None,
     curr_cost: float = 0,
+    transposition_table: typing.Optional[set] = None,
     _iter=1,
 ):
 
@@ -164,7 +175,7 @@ def _astar_deepening_search(
         if visited and neigh in visited:
             continue
 
-        heuristic, effects = evaluate_neighbor(
+        neighbor_pair = evaluate_neighbor(
             check_preconds=preconditions_checker,
             neigh=neigh,
             current_pos=start_pos,
@@ -174,8 +185,15 @@ def _astar_deepening_search(
             blackboard=_blackboard,
             blackboard_default=blackboard_default,
             blackboard_update_op=blackboard_update_op,
-            get_effects=get_effects
+            get_effects=get_effects,
+            transposition_table=transposition_table,
         )
+
+        if not neighbor_pair:
+            # either invalid or, if using transposition tables, duplicated result, skip
+            continue
+
+        heuristic, effects = neighbor_pair
 
         stored_neigh_cost, stored_curr_parent, _ = _paths.get(neigh) or (PLUS_INF, None, None)
         total_cost = curr_cost + heuristic

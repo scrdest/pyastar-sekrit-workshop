@@ -82,7 +82,7 @@ def obstacle_dist(
 
 def action_graph_dist(
     graph,
-    default_cost=float("inf")
+    default_cost=1e6
 ):
 
     def _actual_measure(start, end) -> float:

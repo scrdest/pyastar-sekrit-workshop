@@ -2,6 +2,25 @@ import types
 from copy import deepcopy
 
 
+def statehash(goap_state: dict):
+    # Used for transposition tables.
+    # We want to skip equivalent plans, e.g. "Get[B] -> Get[A] -> Foo" == "Get[A] -> Get[B] -> Foo"
+    # We don't care about the ordering if the results are equivalent,
+    # and retaining such duplicates slows planning down significantly.
+    # To do that, we need to have a way to check output states for any ordering.
+    # We'll do that by just sorting keys alphabetically then stringifying them + value.
+    if not isinstance(goap_state, dict):
+        # for recursion
+        return str(goap_state)
+
+    sorted_keys = sorted(goap_state.keys(), key=lambda x: str(x))
+    ordered_pairs = ((sortkey, goap_state[sortkey]) for sortkey in sorted_keys)
+    recursivized = ((sortkey, statehash(sortval)) for (sortkey, sortval) in ordered_pairs)
+    as_tuple = tuple(recursivized)
+    hashed = hash(as_tuple)
+    return hashed
+
+
 class State(types.SimpleNamespace):
     def __init__(self, name=None, **values):
         super().__init__()
@@ -60,8 +79,11 @@ class State(types.SimpleNamespace):
 
         return super().__eq__(other)
 
+    def as_hash(self):
+        return statehash(self.to_dict())
+
     def __hash__(self):
-        return id(self)
+        return statehash(self.to_dict())
 
     def __str__(self):
         stringform = f"<{self._name} ({self.to_dict()})>"
