@@ -1,6 +1,6 @@
 # First things first, import the GOAP class/function (whichever API you prefer).
 # As mentioned, we'll use a ready-made variant of the algorithm tailored to NPC action graphs:
-from goapystar.usecases.actions import ActionGOAP
+from src.goapystar.usecases.actions import ActionGOAP
 
 
 def example():

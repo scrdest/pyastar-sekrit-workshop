@@ -1,6 +1,6 @@
-from goapystar.usecases.actions import ActionGOAP
-from goapystar.usecases.actiongraph.utils import BasePathfindingGraph
-from goapystar.types import ActionKey
+from ..actions import ActionGOAP
+from .utils import BasePathfindingGraph
+from ...types import ActionKey
 
 
 class FancyActionGraphGOAP(ActionGOAP):

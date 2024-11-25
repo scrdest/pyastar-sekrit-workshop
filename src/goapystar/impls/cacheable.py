@@ -9,9 +9,9 @@ Realistically, this *probably* isn't that useful, since states are path-dependen
 import functools
 import typing
 
-from goapystar.impls.common import NoPathError, _astar_deepening_search
-from goapystar.state import State
-from goapystar.types import StateLike, ActionTuple, IntoState, BlackboardBinOp, ActionKey, PathTuple, ResultTuple
+from .common import NoPathError, _astar_deepening_search
+from ..state import State
+from ..types import StateLike, ActionTuple, IntoState, BlackboardBinOp, ActionKey, PathTuple, ResultTuple
 
 
 def cacheable_solver(

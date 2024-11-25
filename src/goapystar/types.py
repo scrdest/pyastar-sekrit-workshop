@@ -1,6 +1,6 @@
 import typing
 
-from goapystar.state import State
+from .state import State
 
 StateLike = typing.Union[dict, State]
 

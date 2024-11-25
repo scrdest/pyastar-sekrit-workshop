@@ -1,6 +1,6 @@
 import typing
 
-from goapystar.usecases.actiongraph.utils import reasoning_map, BasePathfindingGraph
+from .utils import reasoning_map, BasePathfindingGraph
 
 
 class ActionGraph(BasePathfindingGraph):

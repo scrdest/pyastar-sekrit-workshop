@@ -1,5 +1,5 @@
-from goapystar import measures
-from goapystar.usecases.actiongraph.actiongraph import ActionGraph
+from src.goapystar import measures
+from src.goapystar.usecases.actiongraph.graph import ActionGraph
 
 
 def test_action_graph_dist():

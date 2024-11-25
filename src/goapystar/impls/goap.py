@@ -38,9 +38,9 @@ any *other* functions than the next worker call anyway.
 """
 import typing
 
-from goapystar.impls.common import NoPathError, PLUS_INF, _astar_deepening_search, suppress_not_found
-from goapystar.state import State
-from goapystar.types import StateLike, ActionTuple, ActionKey, IntoState, PathTuple, BlackboardBinOp
+from.common import NoPathError, PLUS_INF, _astar_deepening_search, suppress_not_found
+from ..state import State
+from ..types import StateLike, ActionTuple, ActionKey, IntoState, PathTuple, BlackboardBinOp
 
 
 def find_plan(

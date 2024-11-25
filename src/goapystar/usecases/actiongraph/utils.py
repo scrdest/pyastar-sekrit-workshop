@@ -2,8 +2,8 @@ import abc
 import operator
 import typing
 
-from goapystar.state import State
-from goapystar.types import ActionKey, ActionDict, StateLike
+from ...state import State
+from ...types import ActionKey, ActionDict, StateLike
 
 
 def get_actions(mapobj: ActionDict) -> typing.Callable:

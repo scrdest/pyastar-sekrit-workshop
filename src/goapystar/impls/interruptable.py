@@ -6,9 +6,9 @@ This allows the search to be abandoned early, paused, or continued past the curr
 """
 import typing
 
-from goapystar.impls.common import NoPathError, _astar_deepening_search, PLUS_INF
-from goapystar.state import State
-from goapystar.types import StateLike, ActionTuple, ActionKey, IntoState, PathTuple, BlackboardBinOp
+from .common import NoPathError, _astar_deepening_search, PLUS_INF
+from ..state import State
+from ..types import StateLike, ActionTuple, ActionKey, IntoState, PathTuple, BlackboardBinOp
 
 
 def plan_interruptible(

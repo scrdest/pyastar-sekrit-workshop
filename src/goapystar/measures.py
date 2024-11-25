@@ -1,6 +1,6 @@
 import typing
 
-from goapystar.usecases.map_2d.consts import SLOW
+from src.goapystar.usecases.map_2d.consts import SLOW
 
 
 def manhattan_distance(start: typing.Iterable[float], end: typing.Iterable[float]) -> float:

@@ -2,8 +2,8 @@ import json
 import os
 import typing
 
-from goapystar.state import State
-from goapystar.constants import MAPS_DIR, STATE_MARKER, NAME_MARKER
+from src.goapystar.state import State
+from src.goapystar.constants import MAPS_DIR, STATE_MARKER, NAME_MARKER
 
 
 class MapJsonEncoder(json.JSONEncoder):

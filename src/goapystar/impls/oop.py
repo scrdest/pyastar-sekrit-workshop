@@ -8,9 +8,9 @@ import abc
 import functools
 import typing
 
-from goapystar.impls.common import NoPathError, PLUS_INF, _astar_deepening_search
-from goapystar.state import State
-from goapystar.types import StateLike, ActionTuple, IntoState, BlackboardBinOp, ActionKey, PathTuple, ResultTuple
+from .common import NoPathError, PLUS_INF, _astar_deepening_search
+from ..state import State
+from ..types import StateLike, ActionTuple, IntoState, BlackboardBinOp, ActionKey, PathTuple, ResultTuple
 
 
 class BaseGOAP(abc.ABC):

@@ -71,10 +71,11 @@ the OOP API - it comes prebuilt with methods to handle such use-cases.
 If that doesn't suit you, customize away!
 
 ### Example:
+
 ```python
 # First things first, import the GOAP class/function (whichever API you prefer).
 # As mentioned, we'll use a ready-made variant of the algorithm tailored to NPC action graphs:
-from goapystar.usecases.actions import ActionGOAP
+from src.goapystar.usecases.actions import ActionGOAP
 
 
 def example():
@@ -112,7 +113,7 @@ def example():
             {"Money": 10}
         ],
         'Idle': [
-            1, 
+            1,
             {},
             {"Rested": 1}
         ],
@@ -161,5 +162,5 @@ def example():
 
 # Run the example:
 if __name__ == '__main__':
-  example()
+    example()
 ```

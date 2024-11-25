@@ -1,8 +1,8 @@
 import pytest
-from goapystar.usecases.actiongraph.goap import FancyActionGraphGOAP
-from goapystar.usecases.actiongraph.actiongraph import ActionGraph
-from goapystar.maputils import load_map_json
-from goapystar.state import State
+from src.goapystar.usecases.actiongraph.goap import FancyActionGraphGOAP
+from src.goapystar.usecases.actiongraph.graph import ActionGraph
+from src.goapystar.maputils import load_map_json
+from src.goapystar.state import State
 
 
 @pytest.mark.parametrize(("mapname", "maxiters", "maxheap"), (

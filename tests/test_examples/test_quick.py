@@ -1,8 +1,10 @@
 import pytest
-from examples.reasoning import *
-from goapystar.usecases.actiongraph.actiongraph import ActionGraph
-from goapystar.maputils import load_map_json
-from goapystar.state import State
+
+from src.goapystar.measures import no_goal_heuristic
+from src.goapystar.usecases.actiongraph.graph import ActionGraph
+from src.goapystar.maputils import load_map_json
+from src.goapystar.state import State
+from src.goapystar.default_impl import *
 
 
 @pytest.mark.parametrize(("mapname", "maxiters", "maxheap"), (
@@ -649,7 +651,7 @@ def test_custom_updateop_maplike(diagonals, maxiters, maxheap):
     start = {"pos": (1, 1)}
     goal = {"pos": (19, 2)}
 
-    from goapystar.usecases.map_2d.utils import map_3, Map2D
+    from src.goapystar.usecases.map_2d.utils import map_3, Map2D
 
     raw_map = map_3()
 
@@ -664,7 +666,7 @@ def test_custom_updateop_maplike(diagonals, maxiters, maxheap):
         return result
 
     def custom_heuristic(src, trg):
-        from goapystar.measures import manhattan_distance
+        from src.goapystar.measures import manhattan_distance
         src_pos = src["pos"] if isinstance(src, (dict, State)) else src
         trg_pos = trg["pos"] if isinstance(trg, (dict, State)) else trg
         return manhattan_distance(src_pos, trg_pos)

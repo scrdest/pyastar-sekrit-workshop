@@ -3,9 +3,9 @@ from __future__ import annotations
 import functools
 import typing
 
-from goapystar.usecases.actiongraph.utils import BasePathfindingGraph
-from goapystar.usecases.map_2d.consts import WALL, OPEN, PATH, GOAL, CURR, SLOW
-from goapystar.measures import manhattan_distance
+from ..actiongraph.utils import BasePathfindingGraph
+from .consts import WALL, OPEN, PATH, GOAL, CURR, SLOW
+from ...measures import manhattan_distance
 
 
 def map_1():

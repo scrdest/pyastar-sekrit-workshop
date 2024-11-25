@@ -1,15 +1,15 @@
-from goapystar.maputils import load_map_json
+from src.goapystar.maputils import load_map_json
 
-from goapystar.impls.goap import find_plan
-from goapystar.usecases.actions import (
+from src.goapystar.impls.goap import find_plan
+from src.goapystar.usecases.actions import (
     get_actions,
     get_effects,
     neighbor_measure,
     preconds_checker_for,
     goal_checker_for
 )
-from goapystar.usecases.actiongraph.actiongraph import ActionGraph
-from goapystar.measures import no_goal_heuristic
+from src.goapystar.usecases.actiongraph.graph import ActionGraph
+from src.goapystar.measures import no_goal_heuristic
 
 
 def custom_map():

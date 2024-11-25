@@ -4,9 +4,9 @@ import heapq
 import operator
 import typing
 
-from goapystar.measures import action_graph_dist, equality_check
-from goapystar.state import State
-from goapystar.types import StateLike, BlackboardBinOp, ActionKey, IntoState, PathTuple, CandidateTuple
+from ..measures import action_graph_dist, equality_check
+from ..state import State
+from ..types import StateLike, BlackboardBinOp, ActionKey, IntoState, PathTuple, CandidateTuple
 
 
 class EmptyQueueError(Exception):

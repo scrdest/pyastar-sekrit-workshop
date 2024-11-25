@@ -1,8 +1,10 @@
 import pytest
-from examples.reasoning_cacheable import *
-from goapystar.impls.cacheable import cacheable_solver
-from goapystar.usecases.actiongraph.actiongraph import ActionGraph
-from goapystar.maputils import load_map_json
+from src.goapystar.impls.cacheable import cacheable_solver
+from src.goapystar.measures import no_goal_heuristic
+from src.goapystar.state import State
+from src.goapystar.usecases.actiongraph.graph import ActionGraph
+from src.goapystar.maputils import load_map_json
+from src.goapystar.default_impl import *
 
 
 @pytest.mark.parametrize(("mapname", "maxiters", "maxheap"), (
